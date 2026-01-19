@@ -1,0 +1,36 @@
+services:
+  cf-user-db:
+    image: "postgres:latest"
+    container_name: "cf-user-db"
+    ports:
+      - 5531:5432
+    environment:
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypass
+      POSTGRES_DB: cf_user_db
+    volumes:
+      - ./db-volumes/user-volume:/var/lib/postgresql/data/
+
+  cf-entity-db:
+    image: "postgres:latest"
+    container_name: "cf-entity-db"
+    ports:
+      - 5532:5432
+    environment:
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypass
+      POSTGRES_DB: cf_entity_db
+    volumes:
+      - ./db-volumes/entity-volume:/var/lib/postgresql/data/
+
+  cf-timesheet-db:
+    image: "postgres:latest"
+    container_name: "cf-timesheet-db"
+    ports:
+      - 5533:5432
+    environment:
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypass
+      POSTGRES_DB: cf_timesheet_db
+    volumes:
+      - ./db-volumes/timesheet-volume:/var/lib/postgresql/data/
