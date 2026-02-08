@@ -1,6 +1,6 @@
-package com.constructflow.entity_service.filter;
+package com.constructflow.user_service.filter;
 
-import com.constructflow.entity_service.dto.JwtInfo;
+import com.constructflow.user_service.dto.JwtInfo;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -26,6 +26,11 @@ public class AuthFilter
             FilterChain filterChain)
             throws ServletException, IOException
     {
+        String requestUrl = request.getRequestURI();
+        if(requestUrl.contains("/auth")) {
+            filterChain.doFilter(request, response);
+        }
+
         Long userId = Long.valueOf(request.getHeader("X-User-Id"));
         String username = request.getHeader("X-User-Username");
         String userRole = request.getHeader("X-User-Role");

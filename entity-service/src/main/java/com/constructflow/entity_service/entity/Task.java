@@ -3,6 +3,8 @@ package com.constructflow.entity_service.entity;
 import com.constructflow.entity_service.enums.Status;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
@@ -28,6 +30,7 @@ public class Task
     private String code;
 
     @Column(nullable = false)
+    @Enumerated(value = EnumType.STRING)
     @Builder.Default
     private Status taskStatus = Status.NOT_STARTED;
 

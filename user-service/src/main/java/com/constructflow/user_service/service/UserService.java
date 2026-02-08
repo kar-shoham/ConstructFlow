@@ -5,9 +5,13 @@ import lombok.NonNull;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
 public interface UserService
-    extends UserDetailsService
+        extends UserDetailsService
 {
     CFUser getById(@NonNull Long id);
 
     CFUser create(@NonNull CFUser user);
+
+    CFUser update(
+            @NonNull Long userId,
+            @NonNull CFUser user);
 }
