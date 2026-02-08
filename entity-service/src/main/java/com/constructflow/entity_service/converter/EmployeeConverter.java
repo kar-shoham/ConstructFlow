@@ -26,6 +26,15 @@ public class EmployeeConverter
     {
         if(Objects.isNull(entity)) return null;
 
+
+        String username = null;
+        String email = null;
+
+        if(Objects.nonNull(references)) {
+            username = (String) references.get(ObjectType.Username);
+            email = (String) references.get(ObjectType.Email);
+        }
+
         return EmployeeDto.builder()
                 .id(entity.getId())
                 .firstName(entity.getFirstName())
@@ -37,6 +46,12 @@ public class EmployeeConverter
                 .address(AddressConverter.instance.toDto(null, entity.getAddress()))
                 .active(entity.getActive())
                 .userId(entity.getUserId())
+                .username(username)
+                .email(email)
+                .createdBy(entity.getCreatedBy())
+                .modifiedBy(entity.getModifiedBy())
+                .createdOn(entity.getCreatedOn())
+                .modifiedOn(entity.getModifiedOn())
                 .build();
     }
 
@@ -63,6 +78,10 @@ public class EmployeeConverter
                 .address(AddressConverter.instance.toEntity(null, dto.getAddress()))
                 .active(dto.getActive())
                 .userId(userId)
+                .createdBy(dto.getCreatedBy())
+                .modifiedBy(dto.getModifiedBy())
+                .createdOn(dto.getCreatedOn())
+                .modifiedOn(dto.getModifiedOn())
                 .build();
     }
 }

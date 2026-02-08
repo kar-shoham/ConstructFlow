@@ -66,7 +66,7 @@ public class UserServiceImpl
             @NonNull Long userId,
             @NonNull CFUser user)
     {
-        if (Objects.isNull(user.getUsername()) || Objects.isNull(user.getEmail()) || Objects.isNull(user.getPassword())) {
+        if (Objects.isNull(user.getUsername()) || Objects.isNull(user.getEmail())) {
             throw new MandatoryFieldsMissingException("Some of the mandatory fields are missing!");
         }
         CFUser dbUser = repository.findById(userId).orElseThrow(() ->

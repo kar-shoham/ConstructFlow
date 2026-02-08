@@ -29,8 +29,13 @@ public class AddressConverter
                 .addressLine1(entity.getAddressLine1())
                 .addressLine2(entity.getAddressLine2())
                 .city(entity.getCity())
+                .state(entity.getState())
                 .country(entity.getCountry())
                 .postalCode(entity.getPostalCode())
+                .createdBy(entity.getCreatedBy())
+                .modifiedBy(entity.getModifiedBy())
+                .createdOn(entity.getCreatedOn())
+                .modifiedOn(entity.getModifiedOn())
                 .build();
     }
 
@@ -44,8 +49,13 @@ public class AddressConverter
                 .addressLine1(dto.getAddressLine1())
                 .addressLine2(dto.getAddressLine2())
                 .city(dto.getCity())
+                .state(dto.getState())
                 .country(dto.getCountry())
                 .postalCode(dto.getPostalCode())
+                .createdBy(dto.getCreatedBy())
+                .modifiedBy(dto.getModifiedBy())
+                .createdOn(dto.getCreatedOn())
+                .modifiedOn(dto.getModifiedOn())
                 .build();
     }
 }

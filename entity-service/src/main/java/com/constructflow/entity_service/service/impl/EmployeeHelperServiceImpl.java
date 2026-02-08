@@ -34,6 +34,18 @@ public class EmployeeHelperServiceImpl
     private AuthUtils authUtils;
 
     @Override
+    public EmployeeDto get(
+            @NonNull Long customerId,
+            @NonNull Long companyId,
+            @NonNull Long employeeId)
+    {
+        Employee entity = employeeService.get(customerId, companyId, employeeId);
+        UserDto userDto = userClient.get(entity.getUserId());
+        Map<ObjectType, Object> ref = Map.of(ObjectType.Username, userDto.getUsername(), ObjectType.Email, userDto.getEmail());
+        return EmployeeConverter.instance.toDto(ref, entity);
+    }
+
+    @Override
     public EmployeeDto create(
             @NonNull Long customerId,
             @NonNull Long companyId,

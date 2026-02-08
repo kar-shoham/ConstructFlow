@@ -1,6 +1,8 @@
 package com.constructflow.entity_service.service.impl;
 
 import com.constructflow.entity_service.entity.Employee;
+import com.constructflow.entity_service.enums.EmployeeRole;
+import com.constructflow.entity_service.enums.EmployeeType;
 import com.constructflow.entity_service.repository.EmployeeRepository;
 import com.constructflow.entity_service.service.EmployeeService;
 import com.constructflow.entity_service.utils.AuthUtils;
@@ -62,6 +64,13 @@ public class EmployeeServiceImpl
             @NonNull Employee employee)
     {
         authUtils.validateAccessForCompanyAdmin(customerId, companyId);
+
+        if (employee.getEmployeeType() == null) {
+            employee.setEmployeeType(EmployeeType.HOURLY);
+        }
+        if (employee.getEmployeeRole() == null) {
+            employee.setEmployeeRole(EmployeeRole.WORKER);
+        }
         employee.setId(null);
         employee.setCreatedBy(getLoggedInUserId());
         employee.setCreatedBy(getLoggedInUserId());

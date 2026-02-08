@@ -5,6 +5,7 @@ import com.constructflow.entity_service.dto.EmployeeDto;
 import com.constructflow.entity_service.entity.Employee;
 import com.constructflow.entity_service.service.EmployeeHelperService;
 import com.constructflow.entity_service.service.EmployeeService;
+import jakarta.validation.Valid;
 import org.jspecify.annotations.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -56,15 +57,15 @@ public class EmployeeRestController
             @PathVariable @NonNull Long companyId,
             @PathVariable @NonNull Long employeeId)
     {
-        Employee entity = employeeService.get(customerId, companyId, employeeId);
-        return ResponseEntity.ok(EmployeeConverter.instance.toDto(null, entity));
+        EmployeeDto res = employeeHelperService.get(customerId, companyId, employeeId);
+        return ResponseEntity.ok(res);
     }
 
     @PostMapping("/companies/{companyId}/employees")
     public ResponseEntity<EmployeeDto> create(
             @PathVariable @NonNull Long customerId,
             @PathVariable @NonNull Long companyId,
-            @RequestBody @NonNull EmployeeDto requestDto)
+            @Valid @RequestBody @NonNull EmployeeDto requestDto)
     {
         EmployeeDto res = employeeHelperService.create(customerId, companyId, requestDto);
         return ResponseEntity.ok(res);
@@ -75,7 +76,7 @@ public class EmployeeRestController
             @PathVariable @NonNull Long customerId,
             @PathVariable @NonNull Long companyId,
             @PathVariable @NonNull Long employeeId,
-            @RequestBody @NonNull EmployeeDto requestDto)
+            @Valid @RequestBody @NonNull EmployeeDto requestDto)
     {
         EmployeeDto res = employeeHelperService.update(customerId, companyId, employeeId, requestDto);
         return ResponseEntity.ok(res);
