@@ -10,6 +10,7 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Objects;
@@ -42,6 +43,7 @@ public class ProjectServiceImpl
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public Project create(
             @NonNull Long customerId,
             @NonNull Project project)
@@ -60,6 +62,7 @@ public class ProjectServiceImpl
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public Project update(
             @NonNull Long customerId,
             @NonNull Long projectId,

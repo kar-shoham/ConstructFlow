@@ -13,6 +13,7 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Objects;
@@ -59,6 +60,7 @@ public class TaskServiceImpl
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public Task create(
             @NonNull Long customerId,
             @NonNull Long projectId,
@@ -82,6 +84,7 @@ public class TaskServiceImpl
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public Task update(
             @NonNull Long customerId,
             @NonNull Long projectId,

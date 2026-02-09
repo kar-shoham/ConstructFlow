@@ -12,6 +12,7 @@ import org.jspecify.annotations.NonNull;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -78,6 +79,7 @@ public class EmployeeServiceImpl
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public Employee update(
             @NonNull Long customerId,
             @NonNull Long companyId,

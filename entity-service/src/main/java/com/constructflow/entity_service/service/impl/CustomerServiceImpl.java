@@ -69,6 +69,7 @@ public class CustomerServiceImpl
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public Customer update(
             @NonNull Long id,
             @NonNull Customer customer)
