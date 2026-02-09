@@ -35,6 +35,6 @@ public class Task
     private Status taskStatus = Status.NOT_STARTED;
 
     @ManyToOne
-    @JoinColumn(name = "project_id")
+    @JoinColumn(name = "project_id", updatable = false)
     private Project project;
 }

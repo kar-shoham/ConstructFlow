@@ -34,3 +34,11 @@ services:
       POSTGRES_DB: cf_timesheet_db
     volumes:
       - ./db-volumes/timesheet-volume:/var/lib/postgresql/data/
+
+  zipkin:
+    image: ghcr.io/openzipkin/zipkin-slim:${TAG:-latest}
+    container_name: zipkin
+    environment:
+      - STORAGE_TYPE=mem
+    ports:
+      - 9411:9411

@@ -54,4 +54,22 @@ public class AuthUtils
             throw new InsufficientPermissionException("Cannot Access Other Company's Data");
         }
     }
+
+    public void validateAccessForAnyCompanyAdmin(@NonNull Long customerId)
+    {
+        if (isLoggedUserAdmin()) {
+            return;
+        }
+        Long loggedInUserId = getLoggedInUserId();
+        Employee loggedEmployee = employeeRepository.getEmployeeByUserIdWithCompanyAndCustomerId(loggedInUserId)
+                .orElseThrow(() -> new RuntimeException("Invalid logged in user!"));
+        if (loggedEmployee.getEmployeeRole().equals(EmployeeRole.WORKER)) {
+            throw new InsufficientPermissionException("Employee needs to be Customer Admin to Access this!");
+        }
+        if ((loggedEmployee.getEmployeeRole().equals(EmployeeRole.CUSTOMER_ADMIN) ||
+                loggedEmployee.getEmployeeRole().equals(EmployeeRole.COMPANY_ADMIN)) &&
+                !loggedEmployee.getCompany().getCustomer().getId().equals(customerId)) {
+            throw new InsufficientPermissionException("Cannot Access Other Customer's Data");
+        }
+    }
 }
