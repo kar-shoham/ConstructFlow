@@ -1,7 +1,9 @@
 package com.constructflow.entity_service.service.impl;
 
+import com.constructflow.entity_service.entity.Customer;
 import com.constructflow.entity_service.entity.Project;
 import com.constructflow.entity_service.enums.Status;
+import com.constructflow.entity_service.repository.CustomerRepository;
 import com.constructflow.entity_service.repository.ProjectRepository;
 import com.constructflow.entity_service.service.ProjectService;
 import com.constructflow.entity_service.utils.AuthUtils;
@@ -21,6 +23,9 @@ public class ProjectServiceImpl
         extends AuthService
         implements ProjectService
 {
+    @Autowired
+    private CustomerRepository customerRepository;
+
     @Autowired
     private ProjectRepository repository;
 
@@ -53,6 +58,9 @@ public class ProjectServiceImpl
             throw new RuntimeException("Project with code: " + project.getCode() + " already exists!");
         }
         project.setId(null);
+        Customer customer = customerRepository.findById(customerId).orElseThrow(
+                () -> new EntityNotFoundException("Customer not found with id: " + customerId));
+        project.setCustomer(customer);
         if (Objects.isNull(project.getProjectStatus())) {
             project.setProjectStatus(Status.NOT_STARTED);
         }

@@ -1,8 +1,10 @@
 package com.constructflow.entity_service.service.impl;
 
 import com.constructflow.entity_service.entity.CostCode;
+import com.constructflow.entity_service.entity.Customer;
 import com.constructflow.entity_service.enums.Status;
 import com.constructflow.entity_service.repository.CostCodeRepository;
+import com.constructflow.entity_service.repository.CustomerRepository;
 import com.constructflow.entity_service.service.CostCodeService;
 import com.constructflow.entity_service.utils.AuthUtils;
 import jakarta.persistence.EntityNotFoundException;
@@ -21,6 +23,9 @@ public class CostCodeServiceImpl
         extends AuthService
         implements CostCodeService
 {
+    @Autowired
+    private CustomerRepository customerRepository;
+
     @Autowired
     private CostCodeRepository repository;
 
@@ -52,7 +57,11 @@ public class CostCodeServiceImpl
         if (repository.findByCode(costCode.getCode()).isPresent()) {
             throw new RuntimeException("CostCode with code: " + costCode.getCode() + " already exists!");
         }
+        Customer customer = customerRepository.findById(customerId).orElseThrow(
+                () -> new EntityNotFoundException("Customer not found with id: " + customerId));
+
         costCode.setId(null);
+        costCode.setCustomer(customer);
         if (Objects.nonNull(costCode.getParent())) {
             CostCode parent = get(customerId, costCode.getParent().getId());
             costCode.setParent(parent);
@@ -81,6 +90,9 @@ public class CostCodeServiceImpl
                 .equals(dbCostCode.getParent().getId())) {
             CostCode parent = get(customerId, costCode.getParent().getId());
             dbCostCode.setParent(parent);
+        }
+        else if(Objects.isNull(costCode.getParent())) {
+            dbCostCode.setParent(null);
         }
         dbCostCode.setName(costCode.getName());
         if (Objects.nonNull(costCode.getCostCodeStatus())) {

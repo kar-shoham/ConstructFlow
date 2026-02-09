@@ -47,6 +47,6 @@ public class CostCode
     private Set<CostCode> children = new HashSet<>();
 
     @ManyToOne
-    @JoinColumn(name = "column_id")
+    @JoinColumn(name = "customer_id")
     private Customer customer;
 }
