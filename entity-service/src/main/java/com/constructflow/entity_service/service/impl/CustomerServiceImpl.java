@@ -89,7 +89,9 @@ public class CustomerServiceImpl
     {
         onlyAdmin();
         Customer customer = get(id);
-        repository.delete(customer);
+        customer.setActive(false);
+        customer.setModifiedBy(getLoggedInUserId());
+        repository.save(customer);
         return true;
     }
 }

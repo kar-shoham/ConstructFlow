@@ -8,6 +8,7 @@ import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -40,6 +41,10 @@ public abstract class BaseEntity
     @Column(nullable = false)
     private Long modifiedBy;
 
+    @Column(nullable = false)
+    @Builder.Default
+    private Boolean active = true;
+
     @PrePersist
     public void prePersist()
     {
@@ -50,6 +55,10 @@ public abstract class BaseEntity
             this.createdBy = 1L;
         }
         this.modifiedBy = createdBy;
+
+        if (Objects.isNull(this.active)) {
+            this.active = true;
+        }
     }
 
     @PreUpdate

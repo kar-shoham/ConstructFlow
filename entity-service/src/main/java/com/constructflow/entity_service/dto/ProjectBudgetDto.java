@@ -14,6 +14,8 @@ import lombok.experimental.SuperBuilder;
 public class ProjectBudgetDto extends BaseEntityDto {
 
     private Long taskId;
+    private String taskCode;
     private Long costCodeId;
+    private String costCode;
     private Boolean active;
 }

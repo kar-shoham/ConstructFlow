@@ -53,7 +53,6 @@ public class EmployeeServiceImpl
             @NonNull Long companyId,
             @NonNull Long employeeId)
     {
-        authUtils.validateAccessForCompanyAdmin(customerId, companyId);
         return repository.getEmployeesByCompanyIdAndEmployeeId(
                 companyId, employeeId).orElseThrow(() -> new EntityNotFoundException("Employee not found!"));
     }
@@ -102,6 +101,8 @@ public class EmployeeServiceImpl
             @NonNull Long employeeId)
     {
         Employee employee = get(customerId, companyId, employeeId);
-        repository.delete(employee);
+        employee.setActive(false);
+        employee.setModifiedBy(getLoggedInUserId());
+        repository.save(employee);
     }
 }

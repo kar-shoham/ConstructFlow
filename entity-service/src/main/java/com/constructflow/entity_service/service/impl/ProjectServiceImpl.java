@@ -99,6 +99,8 @@ public class ProjectServiceImpl
     {
         authUtils.validateAccessForAnyCompanyAdmin(customerId);
         Project project = get(customerId, projectId);
-        repository.delete(project);
+        project.setActive(false);
+        project.setModifiedBy(getLoggedInUserId());
+        repository.save(project);
     }
 }

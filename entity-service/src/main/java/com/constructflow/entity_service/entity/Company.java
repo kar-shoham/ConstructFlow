@@ -14,6 +14,7 @@ import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
+import org.hibernate.annotations.SQLRestriction;
 
 @Getter
 @Setter
@@ -21,6 +22,7 @@ import org.hibernate.annotations.FetchMode;
 @AllArgsConstructor
 @SuperBuilder
 @Entity
+@SQLRestriction("active = true")
 public class Company
         extends BaseEntity
 {

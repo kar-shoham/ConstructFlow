@@ -19,6 +19,7 @@ import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
+import org.hibernate.annotations.SQLRestriction;
 
 @Getter
 @Setter
@@ -26,6 +27,7 @@ import org.hibernate.annotations.FetchMode;
 @AllArgsConstructor
 @SuperBuilder
 @Entity
+@SQLRestriction("active = true")
 public class Employee
         extends BaseEntity
 {
@@ -57,7 +59,4 @@ public class Employee
 
     @Column(nullable = false, unique = true, updatable = false)
     private Long userId;
-
-    @Builder.Default
-    private Boolean active = true;
 }

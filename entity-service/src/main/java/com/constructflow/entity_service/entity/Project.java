@@ -20,6 +20,7 @@ import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
+import org.hibernate.annotations.SQLRestriction;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -30,6 +31,7 @@ import java.util.Set;
 @AllArgsConstructor
 @SuperBuilder
 @Entity
+@SQLRestriction("active = true")
 public class Project
         extends BaseEntity
 {
@@ -45,7 +47,7 @@ public class Project
     private Status projectStatus = Status.NOT_STARTED;
 
     @ManyToOne
-    @JoinColumn(name = "column_id")
+    @JoinColumn(name = "customer_id")
     private Customer customer;
 
     @OneToOne(fetch = FetchType.EAGER, cascade = {CascadeType.ALL}, orphanRemoval = true)

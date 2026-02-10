@@ -112,6 +112,8 @@ public class CostCodeServiceImpl
     {
         authUtils.validateAccessForAnyCompanyAdmin(customerId);
         CostCode costCode = get(customerId, costCodeId);
-        repository.delete(costCode);
+        costCode.setActive(false);
+        costCode.setModifiedBy(getLoggedInUserId());
+        repository.save(costCode);
     }
 }

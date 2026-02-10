@@ -36,7 +36,6 @@ public class TaskServiceImpl
     @Override
     public List<Task> listAll(@NonNull Long customerId)
     {
-        authUtils.validateAccessForAnyCompanyAdmin(customerId);
         return repository.getTaskByCustomerId(customerId);
     }
 
@@ -45,7 +44,6 @@ public class TaskServiceImpl
             @NonNull Long customerId,
             @NonNull Long projectId)
     {
-        authUtils.validateAccessForAnyCompanyAdmin(customerId);
         return repository.getTaskByCustomerIdAndProjectId(customerId, projectId);
     }
 
@@ -114,6 +112,9 @@ public class TaskServiceImpl
             @NonNull Long taskId)
     {
         authUtils.validateAccessForAnyCompanyAdmin(customerId);
-
+        Task task = get(customerId, projectId, taskId);
+        task.setActive(false);
+        task.setModifiedBy(getLoggedInUserId());
+        repository.save(task);
     }
 }

@@ -120,6 +120,8 @@ public class CompanyServiceImpl
         if (company.getCode().equals(company.getCustomer().getCode())) {
             throw new RuntimeException("Cannot delete default Company for Customer!");
         }
-        repository.delete(company);
+        company.setActive(false);
+        company.setModifiedBy(getLoggedInUserId());
+        repository.save(company);
     }
 }

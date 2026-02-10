@@ -11,6 +11,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.SQLRestriction;
 
 @Getter
 @Setter
@@ -18,6 +19,7 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @SuperBuilder
 @Entity
+@SQLRestriction("active = true")
 public class ProjectBudget
         extends BaseEntity
 {
@@ -28,8 +30,4 @@ public class ProjectBudget
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cost_code_id", nullable = false)
     private CostCode costCode;
-
-    @Column(nullable = false)
-    @Builder.Default
-    private Boolean active = true;
 }
