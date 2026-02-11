@@ -26,4 +26,16 @@ public interface TaskRepository
             @Param("taskId") Long taskId);
 
     Optional<Task> getTaskByCode(String code);
+
+    @Query(value = "SELECT EXISTS(SELECT 1 FROM project p " +
+            "LEFT JOIN task t ON t.project_id = p.id " +
+            "WHERE p.customer_id = :customerId " +
+            "AND p.id = :projectId " +
+            "AND p.active " +
+            "AND (:taskId IS NULL OR t.id = :taskId AND t.active)) ",
+            nativeQuery = true)
+    boolean isValidCustomerProjectTask(
+            @Param("customerId") Long customerId,
+            @Param("projectId") Long projectId,
+            @Param("taskId") Long taskId);
 }

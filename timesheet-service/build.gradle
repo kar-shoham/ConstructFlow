@@ -48,6 +48,10 @@ dependencies {
     implementation 'io.zipkin.reporter2:zipkin-reporter-brave'
     implementation 'io.github.openfeign:feign-micrometer'
     implementation 'io.micrometer:context-propagation'
+    implementation 'org.springframework.cloud:spring-cloud-starter-config'
+    implementation 'org.springframework.cloud:spring-cloud-starter-openfeign:4.3.0'
+    implementation 'org.springframework.boot:spring-boot-starter-validation:4.0.1'
+    implementation 'org.modelmapper:modelmapper:3.1.1'
 }
 
 dependencyManagement {

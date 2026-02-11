@@ -61,4 +61,12 @@ public interface ProjectBudgetRepository
             @Param("projectId") @NonNull Long projectId,
             @Param("taskId") @NonNull Long taskId,
             @Param("costCodeId") @NonNull Long costCodeId);
+
+    @Query(value = "SELECT EXISTS(SELECT 1 FROM project_budget pb " +
+            "WHERE pb.task_id = :taskId AND pb.cost_code_id = :costCodeId " +
+            "AND pb.active)",
+    nativeQuery = true)
+    boolean isValidBudget(
+            @Param("taskId") Long taskId,
+            @Param("costCodeId") Long costCodeId);
 }

@@ -70,7 +70,7 @@ public class TaskRestController
         return ResponseEntity.ok(TaskConverter.instance.toDto(null, entity));
     }
 
-    @PutMapping("/projects/{projectId}/tasks")
+    @PutMapping("/projects/{projectId}/tasks/{taskId}")
     public ResponseEntity<TaskDto> update(
             @PathVariable @NonNull Long customerId,
             @PathVariable @NonNull Long projectId,

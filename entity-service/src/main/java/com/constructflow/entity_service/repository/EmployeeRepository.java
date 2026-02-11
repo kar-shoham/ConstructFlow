@@ -26,4 +26,12 @@ public interface EmployeeRepository
 
     @Query("FROM Employee e JOIN FETCH e.company c JOIN FETCH c.customer cu WHERE e.userId= :userId")
     Optional<Employee> getEmployeeByUserIdWithCompanyAndCustomerId(@Param("userId") Long userId);
+
+    @Query("SELECT EXISTS (SELECT 1 FROM Employee e " +
+            "LEFT JOIN e.company c " +
+            "WHERE c.customer.id = :customerId " +
+            "AND e.id = :employeeId)")
+    boolean doesEmployeeBelongToCustomerId(
+            @Param("customerId") Long customerId,
+            @Param("employeeId") Long employeeId);
 }
