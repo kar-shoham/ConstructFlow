@@ -61,7 +61,7 @@ public class TimesheetServiceImpl
                         .projectId(entity.getProjectId())
                         .taskId(entity.getTaskId())
                         .costCodeId(entity.getCostCodeId())
-                        .build());
+                        .build()).getBody();
 
         if (!validationResponse.isValid()) {
             throw new RuntimeException(validationResponse.getMessage());
@@ -88,7 +88,7 @@ public class TimesheetServiceImpl
                         .projectId(entity.getProjectId())
                         .taskId(entity.getTaskId())
                         .costCodeId(entity.getCostCodeId())
-                        .build());
+                        .build()).getBody();
 
         if (!validationResponse.isValid()) {
             throw new RuntimeException(validationResponse.getMessage());

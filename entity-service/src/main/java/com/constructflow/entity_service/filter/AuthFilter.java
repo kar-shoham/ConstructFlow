@@ -26,9 +26,10 @@ public class AuthFilter
             FilterChain filterChain)
             throws ServletException, IOException
     {
-        Long userId = Long.valueOf(request.getHeader("X-User-Id"));
-        String username = request.getHeader("X-User-Username");
-        String userRole = request.getHeader("X-User-Role");
+
+        Long userId = Objects.isNull(request.getHeader("X-User-Id")) ? null : Long.valueOf(request.getHeader("X-User-Id"));
+        String username = Objects.isNull(request.getHeader("X-User-Username")) ? null : request.getHeader("X-User-Username");
+        String userRole = Objects.isNull(request.getHeader("X-User-Role")) ? null : request.getHeader("X-User-Role");
 
         if (Objects.isNull(userId) || !StringUtils.hasText(username) || !StringUtils.hasText(userRole)) {
             handleError(response, "Authentication Failed!", HttpServletResponse.SC_UNAUTHORIZED);
