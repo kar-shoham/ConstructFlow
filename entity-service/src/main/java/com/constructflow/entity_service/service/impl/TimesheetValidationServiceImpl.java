@@ -3,6 +3,7 @@ package com.constructflow.entity_service.service.impl;
 import com.constructflow.entity_service.dto.TimesheetValidationDto;
 import com.constructflow.entity_service.dto.TimesheetValidationResponseDto;
 import com.constructflow.entity_service.exception.TimesheetValidationException;
+import com.constructflow.entity_service.repository.EmployeeRepository;
 import com.constructflow.entity_service.repository.ProjectBudgetRepository;
 import com.constructflow.entity_service.repository.TaskRepository;
 import com.constructflow.entity_service.service.TimesheetValidationService;
@@ -19,6 +20,9 @@ import java.util.Objects;
 public class TimesheetValidationServiceImpl
         implements TimesheetValidationService
 {
+    @Autowired
+    private EmployeeRepository employeeRepository;
+
     @Autowired
     private TaskRepository taskRepository;
 
@@ -38,6 +42,10 @@ public class TimesheetValidationServiceImpl
         if (Objects.isNull(validationDto.getProjectId())) {
             throw new TimesheetValidationException("Missing Project Id!");
         }
+        if (!employeeRepository.doesEmployeeBelongToCustomerId(
+                validationDto.getCustomerId(), validationDto.getEmployeeId())) {
+            throw new TimesheetValidationException("Invalid Employee!");
+        }
         if (!taskRepository.isValidCustomerProjectTask(
                 validationDto.getCustomerId(), validationDto.getProjectId(), validationDto.getTaskId())) {
             throw new TimesheetValidationException("Invalid Customer Project Task Combination!");
@@ -47,7 +55,7 @@ public class TimesheetValidationServiceImpl
             throw new TimesheetValidationException("Invalid Task CostCode Combination!");
         }
         return TimesheetValidationResponseDto.builder()
-                .isValid(true)
+                .valid(true)
                 .message("Valid Ids, can create Timesheet!")
                 .build();
     }

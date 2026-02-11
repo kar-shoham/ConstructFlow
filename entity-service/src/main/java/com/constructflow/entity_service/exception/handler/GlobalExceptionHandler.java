@@ -104,7 +104,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(TimesheetValidationException.class)
     public ResponseEntity<TimesheetValidationResponseDto> handleTimesheetValidationException(TimesheetValidationException ex, WebRequest request) {
         TimesheetValidationResponseDto errorResponse = TimesheetValidationResponseDto.builder()
-                .isValid(false)
+                .valid(false)
                 .message(ex.getMessage())
                 .build();
         return ResponseEntity.ok(errorResponse);

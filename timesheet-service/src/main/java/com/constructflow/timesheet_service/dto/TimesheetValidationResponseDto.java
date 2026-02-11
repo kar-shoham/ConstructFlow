@@ -13,6 +13,6 @@ import lombok.Setter;
 @Builder
 public class TimesheetValidationResponseDto
 {
-    private boolean isValid;
+    private boolean valid;
     private String message;
 }
