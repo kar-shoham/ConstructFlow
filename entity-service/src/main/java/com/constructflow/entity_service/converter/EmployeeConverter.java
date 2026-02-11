@@ -62,7 +62,7 @@ public class EmployeeConverter
         if(Objects.isNull(dto)) return null;
 
         if (!references.containsKey(ObjectType.UserId)) {
-            throw new RuntimeException("Missing UserId for Employee!");
+            throw new com.constructflow.entity_service.exception.ValidationException("Missing UserId for Employee!");
         }
 
         Long userId = (Long) references.get(ObjectType.UserId);

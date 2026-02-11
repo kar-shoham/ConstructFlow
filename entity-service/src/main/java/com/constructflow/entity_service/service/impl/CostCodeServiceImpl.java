@@ -55,7 +55,7 @@ public class CostCodeServiceImpl
     {
         authUtils.validateAccessForAnyCompanyAdmin(customerId);
         if (repository.findByCode(costCode.getCode()).isPresent()) {
-            throw new RuntimeException("CostCode with code: " + costCode.getCode() + " already exists!");
+            throw new com.constructflow.entity_service.exception.ResourceAlreadyExistsException("CostCode with code: " + costCode.getCode() + " already exists!");
         }
         Customer customer = customerRepository.findById(customerId).orElseThrow(
                 () -> new EntityNotFoundException("Customer not found with id: " + customerId));
@@ -84,7 +84,7 @@ public class CostCodeServiceImpl
         authUtils.validateAccessForAnyCompanyAdmin(customerId);
         CostCode dbCostCode = get(customerId, costCodeId);
         if (!dbCostCode.getCode().equals(costCode.getCode())) {
-            throw new RuntimeException("Cannot change CostCode Code!");
+            throw new com.constructflow.entity_service.exception.InvalidOperationException("Cannot change CostCode Code!");
         }
         if (Objects.nonNull(costCode.getParent()) && !costCode.getParent().getId()
                 .equals(dbCostCode.getParent().getId())) {

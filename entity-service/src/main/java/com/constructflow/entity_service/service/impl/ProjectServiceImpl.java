@@ -55,7 +55,7 @@ public class ProjectServiceImpl
     {
         authUtils.validateAccessForAnyCompanyAdmin(customerId);
         if (repository.findByCode(project.getCode()).isPresent()) {
-            throw new RuntimeException("Project with code: " + project.getCode() + " already exists!");
+            throw new com.constructflow.entity_service.exception.ResourceAlreadyExistsException("Project with code: " + project.getCode() + " already exists!");
         }
         project.setId(null);
         Customer customer = customerRepository.findById(customerId).orElseThrow(
@@ -79,7 +79,7 @@ public class ProjectServiceImpl
         authUtils.validateAccessForAnyCompanyAdmin(customerId);
         Project dbProject = get(customerId, projectId);
         if (!dbProject.getCode().equals(project.getCode())) {
-            throw new RuntimeException("Cannot change Project Code!");
+            throw new com.constructflow.entity_service.exception.InvalidOperationException("Cannot change Project Code!");
         }
         dbProject.setName(project.getName());
         if (Objects.nonNull(project.getProjectStatus())) {

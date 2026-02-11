@@ -53,8 +53,56 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<TimesheetValidationResponseDto> handleTimesheetValidationException(Exception ex, WebRequest request) {
+    @ExceptionHandler(com.constructflow.entity_service.exception.ResourceAlreadyExistsException.class)
+    public ResponseEntity<ErrorResponseDto> handleResourceAlreadyExistsException(com.constructflow.entity_service.exception.ResourceAlreadyExistsException ex, WebRequest request) {
+        ErrorResponseDto errorResponse = ErrorResponseDto.builder()
+                .timestamp(LocalDateTime.now())
+                .status(HttpStatus.CONFLICT.value())
+                .error(HttpStatus.CONFLICT.getReasonPhrase())
+                .message(ex.getMessage())
+                .path(request.getDescription(false))
+                .build();
+        return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(jakarta.persistence.EntityExistsException.class)
+    public ResponseEntity<ErrorResponseDto> handleEntityExistsException(jakarta.persistence.EntityExistsException ex, WebRequest request) {
+        ErrorResponseDto errorResponse = ErrorResponseDto.builder()
+                .timestamp(LocalDateTime.now())
+                .status(HttpStatus.CONFLICT.value())
+                .error(HttpStatus.CONFLICT.getReasonPhrase())
+                .message(ex.getMessage())
+                .path(request.getDescription(false))
+                .build();
+        return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(com.constructflow.entity_service.exception.InvalidOperationException.class)
+    public ResponseEntity<ErrorResponseDto> handleInvalidOperationException(com.constructflow.entity_service.exception.InvalidOperationException ex, WebRequest request) {
+        ErrorResponseDto errorResponse = ErrorResponseDto.builder()
+                .timestamp(LocalDateTime.now())
+                .status(HttpStatus.BAD_REQUEST.value())
+                .error(HttpStatus.BAD_REQUEST.getReasonPhrase())
+                .message(ex.getMessage())
+                .path(request.getDescription(false))
+                .build();
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(com.constructflow.entity_service.exception.ValidationException.class)
+    public ResponseEntity<ErrorResponseDto> handleValidationException(com.constructflow.entity_service.exception.ValidationException ex, WebRequest request) {
+        ErrorResponseDto errorResponse = ErrorResponseDto.builder()
+                .timestamp(LocalDateTime.now())
+                .status(HttpStatus.BAD_REQUEST.value())
+                .error(HttpStatus.BAD_REQUEST.getReasonPhrase())
+                .message(ex.getMessage())
+                .path(request.getDescription(false))
+                .build();
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(TimesheetValidationException.class)
+    public ResponseEntity<TimesheetValidationResponseDto> handleTimesheetValidationException(TimesheetValidationException ex, WebRequest request) {
         TimesheetValidationResponseDto errorResponse = TimesheetValidationResponseDto.builder()
                 .isValid(false)
                 .message(ex.getMessage())

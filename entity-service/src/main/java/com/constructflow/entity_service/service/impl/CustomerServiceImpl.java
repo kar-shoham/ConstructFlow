@@ -51,7 +51,7 @@ public class CustomerServiceImpl
     {
         onlyAdmin();
         if (repository.findCustomerByCode(customer.getCode()).isPresent()) {
-            throw new RuntimeException("Customer with code: " + customer.getCode() + " already exists");
+            throw new com.constructflow.entity_service.exception.ResourceAlreadyExistsException("Customer with code: " + customer.getCode() + " already exists");
         }
         customer.setId(null);
         customer.setCreatedBy(getLoggedInUserId());
@@ -77,7 +77,7 @@ public class CustomerServiceImpl
         authUtils.validateAccessForCustomerAdmin(id);
         Customer dbCustomer = get(id);
         if (!dbCustomer.getCode().equals(customer.getCode())) {
-            throw new RuntimeException("Customer Code cannot be changed!");
+            throw new com.constructflow.entity_service.exception.InvalidOperationException("Customer Code cannot be changed!");
         }
         dbCustomer.setModifiedBy(getLoggedInUserId());
         dbCustomer.setName(customer.getName());

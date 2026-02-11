@@ -1,6 +1,6 @@
-package com.constructflow.entity_service.converter;
+package com.constructflow.timesheet_service.converter;
 
-import com.constructflow.entity_service.enums.ObjectType;
+import org.aspectj.apache.bcel.generic.ObjectType;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -35,4 +35,3 @@ public abstract class Converter<X, Y>
         return fromDtoToEntity.apply(references, y);
     }
 }
-

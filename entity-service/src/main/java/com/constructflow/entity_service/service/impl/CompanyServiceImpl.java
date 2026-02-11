@@ -66,7 +66,7 @@ public class CompanyServiceImpl
         authUtils.validateAccessForCustomerAdmin(customerId);
         Customer customer = customerRepository.findById(customerId).orElseThrow(() -> new CustomerNotFoundException(customerId));
         if (Objects.nonNull(company.getCustomer()) && !company.getCustomer().getId().equals(customer.getId())) {
-            throw new RuntimeException("Customer Id Mismatch error!");
+            throw new com.constructflow.entity_service.exception.InvalidOperationException("Customer Id Mismatch error!");
         }
         company.setCustomer(customer);
         if (repository.getCompanyByCode(company.getCode()).isPresent()) {
@@ -90,7 +90,7 @@ public class CompanyServiceImpl
         authUtils.validateAccessForCompanyAdmin(customerId, companyId);
         Customer customer = customerRepository.findById(customerId).orElse(null);
         if (Objects.nonNull(company.getCustomer()) && !company.getCustomer().getId().equals(customer.getId())) {
-            throw new RuntimeException("Customer Id Mismatch error!");
+            throw new com.constructflow.entity_service.exception.InvalidOperationException("Customer Id Mismatch error!");
         }
 
         Company dbCompany = repository.getCompanyByCustomerIdAndCompanyId(customerId, companyId).orElseThrow(() ->
@@ -98,7 +98,7 @@ public class CompanyServiceImpl
         );
 
         if (!dbCompany.getCode().equals(company.getCode())) {
-            throw new RuntimeException("Cannot change Company Code!");
+            throw new com.constructflow.entity_service.exception.InvalidOperationException("Cannot change Company Code!");
         }
 
         dbCompany.setName(company.getName());
@@ -118,7 +118,7 @@ public class CompanyServiceImpl
                 new EntityNotFoundException("No Company Exists with CustomerId: " + customerId + ", CompanyId: " + companyId)
         );
         if (company.getCode().equals(company.getCustomer().getCode())) {
-            throw new RuntimeException("Cannot delete default Company for Customer!");
+            throw new com.constructflow.entity_service.exception.InvalidOperationException("Cannot delete default Company for Customer!");
         }
         company.setActive(false);
         company.setModifiedBy(getLoggedInUserId());

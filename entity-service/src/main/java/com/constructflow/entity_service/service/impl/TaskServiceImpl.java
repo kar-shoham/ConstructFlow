@@ -95,7 +95,7 @@ public class TaskServiceImpl
                         new EntityNotFoundException("Task not found!"));
 
         if (!dbTask.getCode().equals(task.getCode())) {
-            throw new RuntimeException("Cannot change Task Code!");
+            throw new com.constructflow.entity_service.exception.InvalidOperationException("Cannot change Task Code!");
         }
         dbTask.setName(task.getName());
         if (Objects.nonNull(task.getTaskStatus())) {
