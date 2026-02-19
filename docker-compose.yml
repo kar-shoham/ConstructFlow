@@ -35,6 +35,69 @@ services:
     volumes:
       - ./db-volumes/timesheet-volume:/var/lib/postgresql/data/
 
+  cf-payroll-db:
+    image: "postgres:latest"
+    container_name: "cf-payroll-db"
+    ports:
+      - 5534:5432
+    environment:
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypass
+      POSTGRES_DB: cf_payroll_db
+    volumes:
+      - ./db-volumes/payroll-volume:/var/lib/postgresql/data/
+
+
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    hostname: kafka
+    container_name: kafka
+    ports:
+      - "9092:9092"   # Map host 9092 to container 9092 (External)
+      - "9093:9093"
+    environment:
+      KAFKA_KRAFT_MODE: "true"
+      KAFKA_PROCESS_ROLES: controller,broker
+      KAFKA_NODE_ID: 1
+      KAFKA_CONTROLLER_QUORUM_VOTERS: "1@kafka:9093"
+      KAFKA_LISTENERS: INTERNAL://0.0.0.0:29092,EXTERNAL://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka:29092,EXTERNAL://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT,CONTROLLER:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_LOG_DIRS: /var/lib/kafka/data
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      CLUSTER_ID: uvPuhxALSNCT9fLN74DFLA
+    volumes:
+      - ./db-volumes/kafka-volume:/var/lib/kafka/data
+
+  schema-registry:
+    image: confluentinc/cp-schema-registry:7.7.1
+    hostname: schema-registry
+    container_name: schema-registry
+    depends_on:
+      - kafka
+    ports:
+      - "8881:8081"
+    environment:
+      SCHEMA_REGISTRY_HOST_NAME: schema-registry
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: 'kafka:29092'
+      SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
+
+  kafbat-ui:
+    container_name: kafbat-ui
+    image: ghcr.io/kafbat/kafka-ui:latest
+    ports:
+      - 8880:8080
+    depends_on:
+      - kafka
+      - schema-registry
+    environment:
+      KAFKA_CLUSTERS_0_NAME: local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
+      KAFKA_CLUSTERS_0_SCHEMAREGISTRY: http://schema-registry:8081
+
   zipkin:
     image: ghcr.io/openzipkin/zipkin-slim:${TAG:-latest}
     container_name: zipkin
