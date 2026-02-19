@@ -29,6 +29,7 @@ public class AuthFilter
         String requestUrl = request.getRequestURI();
         if(requestUrl.contains("/auth")) {
             filterChain.doFilter(request, response);
+            return;
         }
 
         Long userId = Long.valueOf(request.getHeader("X-User-Id"));
