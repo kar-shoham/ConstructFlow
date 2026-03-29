@@ -3,6 +3,18 @@ import { api } from '../../api/client';
 import { useTenant } from '../../state/TenantContext';
 import type { ProjectDto } from '../../api/types';
 
+function statusBadge(status: ProjectDto['projectStatus']) {
+  if (status === 'COMPLETED')  return 'badge badge-success';
+  if (status === 'IN_PROGRESS') return 'badge badge-warning';
+  return 'badge badge-muted';
+}
+
+function statusLabel(status: ProjectDto['projectStatus']) {
+  if (status === 'IN_PROGRESS') return 'In Progress';
+  if (status === 'COMPLETED')   return 'Completed';
+  return 'Not Started';
+}
+
 export const ProjectsPage: React.FC = () => {
   const { customerId } = useTenant();
   const [list, setList] = useState<ProjectDto[]>([]);
@@ -13,11 +25,7 @@ export const ProjectsPage: React.FC = () => {
   const [form, setForm] = useState({ name: '', code: '', projectStatus: 'NOT_STARTED' as ProjectDto['projectStatus'] });
 
   const load = () => {
-    if (!customerId) {
-      setList([]);
-      setLoading(false);
-      return;
-    }
+    if (!customerId) { setList([]); setLoading(false); return; }
     setLoading(true);
     setError(null);
     api
@@ -27,9 +35,7 @@ export const ProjectsPage: React.FC = () => {
       .finally(() => setLoading(false));
   };
 
-  useEffect(() => {
-    load();
-  }, [customerId]);
+  useEffect(() => { load(); }, [customerId]);
 
   const openCreate = () => {
     setEditing(null);
@@ -93,22 +99,38 @@ export const ProjectsPage: React.FC = () => {
         </div>
         <button type="button" className="btn btn-primary" onClick={openCreate}>Add project</button>
       </div>
-      {error && <div className="error-text" style={{ marginBottom: 10 }}>{error}</div>}
+
+      {error && <div className="error-text" style={{ marginBottom: 12 }}>{error}</div>}
+
       {formOpen && (
         <form className="panel" style={{ marginBottom: 16 }} onSubmit={save}>
-          <div className="panel-title">{editing ? 'Edit project' : 'New project'}</div>
+          <div className="panel-title" style={{ marginBottom: 12 }}>{editing ? 'Edit project' : 'New project'}</div>
           <div className="form-grid">
             <div className="field">
               <label>Name</label>
-              <input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="Site Alpha" required />
+              <input
+                value={form.name}
+                onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
+                placeholder="Site Alpha"
+                required
+              />
             </div>
             <div className="field">
               <label>Code</label>
-              <input value={form.code} onChange={e => setForm(f => ({ ...f, code: e.target.value }))} placeholder="SA-01" required disabled={!!editing?.id} />
+              <input
+                value={form.code}
+                onChange={e => setForm(f => ({ ...f, code: e.target.value }))}
+                placeholder="SA-01"
+                required
+                disabled={!!editing?.id}
+              />
             </div>
             <div className="field">
               <label>Status</label>
-              <select value={form.projectStatus} onChange={e => setForm(f => ({ ...f, projectStatus: e.target.value as ProjectDto['projectStatus'] }))}>
+              <select
+                value={form.projectStatus}
+                onChange={e => setForm(f => ({ ...f, projectStatus: e.target.value as ProjectDto['projectStatus'] }))}
+              >
                 <option value="NOT_STARTED">Not started</option>
                 <option value="IN_PROGRESS">In progress</option>
                 <option value="COMPLETED">Completed</option>
@@ -117,27 +139,51 @@ export const ProjectsPage: React.FC = () => {
           </div>
           <div className="row" style={{ marginTop: 12, gap: 8 }}>
             <button type="submit" className="btn btn-primary">Save</button>
-            <button type="button" className="btn btn-ghost" onClick={() => { setEditing(null); setFormOpen(false); setForm({ name: '', code: '', projectStatus: 'NOT_STARTED' }); }}>Cancel</button>
+            <button
+              type="button"
+              className="btn"
+              onClick={() => { setEditing(null); setFormOpen(false); setForm({ name: '', code: '', projectStatus: 'NOT_STARTED' }); }}
+            >
+              Cancel
+            </button>
           </div>
         </form>
       )}
+
       {loading ? (
-        <div className="muted">Loading…</div>
+        <div className="muted" style={{ fontSize: 14 }}>Loading…</div>
+      ) : list.length === 0 ? (
+        <div className="empty-state">
+          <div className="empty-state-icon">📋</div>
+          <div className="empty-state-text">No projects yet</div>
+          <div className="empty-state-sub">Click "Add project" to create your first project.</div>
+        </div>
       ) : (
         <div style={{ overflowX: 'auto' }}>
           <table className="table">
             <thead>
-              <tr><th>Code</th><th>Name</th><th>Status</th><th></th></tr>
+              <tr>
+                <th>Code</th>
+                <th>Name</th>
+                <th>Status</th>
+                <th></th>
+              </tr>
             </thead>
             <tbody>
               {list.map(row => (
                 <tr key={row.id}>
                   <td><span className="badge badge-muted">{row.code}</span></td>
-                  <td>{row.name}</td>
-                  <td><span className="badge badge-accent">{row.projectStatus ?? 'NOT_STARTED'}</span></td>
+                  <td style={{ fontWeight: 500 }}>{row.name}</td>
                   <td>
-                    <button type="button" className="btn btn-ghost" onClick={() => openEdit(row)}>Edit</button>
-                    <button type="button" className="btn btn-ghost btn-danger" onClick={() => row.id != null && remove(row.id)}>Delete</button>
+                    <span className={statusBadge(row.projectStatus)}>
+                      {statusLabel(row.projectStatus)}
+                    </span>
+                  </td>
+                  <td>
+                    <div className="row" style={{ gap: 6, justifyContent: 'flex-end' }}>
+                      <button type="button" className="btn btn-ghost" onClick={() => openEdit(row)}>Edit</button>
+                      <button type="button" className="btn btn-ghost btn-danger" onClick={() => row.id != null && remove(row.id)}>Delete</button>
+                    </div>
                   </td>
                 </tr>
               ))}

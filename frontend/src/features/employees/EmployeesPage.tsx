@@ -5,15 +5,19 @@ import { useAuth } from '../../state/AuthContext';
 import { useCurrentEmployee } from '../../state/CurrentEmployeeContext';
 import type { EmployeeDto } from '../../api/types';
 
+interface CompanyOption { id: number; name: string; code: string; }
+
 export const EmployeesPage: React.FC = () => {
   const auth = useAuth();
   const { customerId, companyId } = useTenant();
   const { currentEmployee } = useCurrentEmployee();
   const [list, setList] = useState<EmployeeDto[]>([]);
+  const [companies, setCompanies] = useState<CompanyOption[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [editing, setEditing] = useState<EmployeeDto | null>(null);
   const [formOpen, setFormOpen] = useState(false);
+  const [formCompanyId, setFormCompanyId] = useState<number | null>(null);
   const [form, setForm] = useState<Partial<EmployeeDto>>({
     firstName: '', lastName: '', username: '', email: '', password: '',
     payRate: undefined, employeeType: 'HOURLY', employeeRole: 'WORKER'
@@ -22,6 +26,14 @@ export const EmployeesPage: React.FC = () => {
   const isAdmin = auth.userRole === 'ADMIN';
   const isCustomerAdmin = currentEmployee?.employeeRole === 'CUSTOMER_ADMIN';
   const isCompanyAdmin = currentEmployee?.employeeRole === 'COMPANY_ADMIN';
+
+  // Load companies so admin can pick one in the form
+  useEffect(() => {
+    if (!isAdmin || !customerId) return;
+    api.get<CompanyOption[]>(`/customers/${customerId}/companies`)
+      .then(res => setCompanies(res.data))
+      .catch(() => {});
+  }, [isAdmin, customerId]);
 
   const load = () => {
     if (!customerId) {
@@ -36,7 +48,7 @@ export const EmployeesPage: React.FC = () => {
     }
     setLoading(true);
     setError(null);
-    const url = isCustomerAdmin
+    const url = (isAdmin || isCustomerAdmin)
       ? `/customers/${customerId}/employees`
       : `/customers/${customerId}/companies/${companyId}/employees`;
     api
@@ -53,12 +65,14 @@ export const EmployeesPage: React.FC = () => {
   const openCreate = () => {
     setEditing(null);
     setFormOpen(true);
+    setFormCompanyId(companyId);
     setForm({ firstName: '', lastName: '', username: '', email: '', password: '', payRate: undefined, employeeType: 'HOURLY', employeeRole: 'WORKER' });
   };
 
   const openEdit = (row: EmployeeDto) => {
     setEditing(row);
     setFormOpen(true);
+    setFormCompanyId(row.companyId ?? companyId);
     setForm({
       firstName: row.firstName ?? '', lastName: row.lastName ?? '', username: row.username ?? '', email: row.email ?? '',
       payRate: row.payRate, employeeType: row.employeeType ?? 'HOURLY', employeeRole: row.employeeRole ?? 'WORKER'
@@ -67,19 +81,23 @@ export const EmployeesPage: React.FC = () => {
 
   const save = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!customerId || !companyId) return;
+    const effectiveCompanyId = formCompanyId ?? companyId;
+    if (!customerId || !effectiveCompanyId) {
+      setError('Select a company before saving.');
+      return;
+    }
     setError(null);
-    const payload = { ...form, companyId };
+    const payload = { ...form, companyId: effectiveCompanyId };
     if (editing?.id) delete (payload as any).password;
     try {
       if (editing?.id) {
-        await api.put(`/customers/${customerId}/companies/${companyId}/employees/${editing.id}`, payload);
+        await api.put(`/customers/${customerId}/companies/${effectiveCompanyId}/employees/${editing.id}`, payload);
       } else {
         if (!form.password) {
           setError('Password is required for new employee');
           return;
         }
-        await api.post(`/customers/${customerId}/companies/${companyId}/employees`, payload);
+        await api.post(`/customers/${customerId}/companies/${effectiveCompanyId}/employees`, payload);
       }
       load();
       setEditing(null);
@@ -91,10 +109,11 @@ export const EmployeesPage: React.FC = () => {
   };
 
   const remove = async (id: number) => {
-    if (!customerId || !companyId || !window.confirm('Delete this employee?')) return;
+    const effectiveCompanyId = formCompanyId ?? companyId;
+    if (!customerId || !effectiveCompanyId || !window.confirm('Delete this employee?')) return;
     setError(null);
     try {
-      await api.delete(`/customers/${customerId}/companies/${companyId}/employees/${id}`);
+      await api.delete(`/customers/${customerId}/companies/${effectiveCompanyId}/employees/${id}`);
       load();
       setEditing(null);
       setFormOpen(false);
@@ -140,6 +159,21 @@ export const EmployeesPage: React.FC = () => {
         <form className="panel" style={{ marginBottom: 16 }} onSubmit={save}>
           <div className="panel-title">{editing ? 'Edit employee' : 'New employee'}</div>
           <div className="form-grid">
+            {isAdmin && (
+              <div className="field">
+                <label>Company</label>
+                <select
+                  value={formCompanyId ?? ''}
+                  onChange={e => setFormCompanyId(e.target.value ? Number(e.target.value) : null)}
+                  required
+                >
+                  <option value="">Select company</option>
+                  {companies.map(c => (
+                    <option key={c.id} value={c.id}>{c.name} ({c.code})</option>
+                  ))}
+                </select>
+              </div>
+            )}
             <div className="field">
               <label>First name</label>
               <input value={form.firstName ?? ''} onChange={e => setForm(f => ({ ...f, firstName: e.target.value }))} required />

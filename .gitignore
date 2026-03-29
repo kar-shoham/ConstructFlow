@@ -39,3 +39,6 @@ out/
 /db-volumes
 
 local.env
+
+
+.claude/**

@@ -35,7 +35,7 @@ export const LoginPage: React.FC = () => {
         token: res.data.token,
         userId: res.data.userId,
         username: res.data.username,
-        userRole: res.data.userRole
+        userRole: res.data.userRole,
       });
       navigate(from, { replace: true });
     } catch (err: any) {
@@ -47,55 +47,120 @@ export const LoginPage: React.FC = () => {
   };
 
   return (
-    <div className="layout-auth">
-      <div className="auth-card">
-        <div className="auth-header">
-          <div className="row-between">
-            <div>
-              <div className="badge badge-accent">ConstructFlow</div>
-            </div>
-            <div className="chip">Internal users only</div>
+    <div className="auth-split">
+      {/* ── Left: Dark brand panel ── */}
+      <div className="auth-brand">
+        <div className="auth-brand-logo">
+          <div className="auth-brand-logo-mark" />
+          <span className="auth-brand-name">ConstructFlow</span>
+        </div>
+
+        <div className="auth-brand-content">
+          <div className="auth-brand-slogan">
+            Architectural<br />
+            Precision in<br />
+            <span className="auth-brand-slogan-accent">Every Frame.</span>
           </div>
-          <div className="auth-title">Sign in to your workspace</div>
-          <div className="auth-subtitle">
-            Use the account your admin created for your company. No public signup here.
+
+          <p className="auth-brand-desc">
+            The all-in-one platform for managing construction projects, teams, timesheets, and budgets — built for precision at every level.
+          </p>
+
+          <div className="auth-brand-features">
+            {[
+              'Multi-tenant project & customer management',
+              'Role-based access for teams of any size',
+              'Real-time timesheet tracking & validation',
+              'Cost code hierarchy and budget controls',
+            ].map(f => (
+              <div className="auth-brand-feature" key={f}>
+                <div className="auth-brand-feature-dot" />
+                {f}
+              </div>
+            ))}
           </div>
         </div>
-        <form className="stack-lg" onSubmit={handleSubmit}>
-          <div className="field">
-            <label>Username</label>
-            <input
-              value={username}
-              onChange={e => setUsername(e.target.value)}
-              placeholder="your.name"
-              autoComplete="username"
-              required
-            />
+
+        <div className="auth-brand-footer">
+          © {new Date().getFullYear()} ConstructFlow · Internal platform · All rights reserved
+        </div>
+      </div>
+
+      {/* ── Right: White login panel ── */}
+      <div className="auth-form-panel">
+        <div className="auth-form-inner">
+          {/* Header */}
+          <div style={{ marginBottom: 32 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 }}>
+              <div
+                style={{
+                  width: 40,
+                  height: 40,
+                  borderRadius: 10,
+                  background: 'linear-gradient(135deg, #FF7A3D, #F26522)',
+                  boxShadow: '0 4px 14px rgba(242,101,34,0.35)',
+                }}
+              />
+              <span style={{ fontWeight: 800, fontSize: 15, letterSpacing: '0.05em', textTransform: 'uppercase' as const, color: '#111827' }}>
+                ConstructFlow
+              </span>
+            </div>
+            <h1 style={{ margin: 0, fontSize: 28, fontWeight: 800, color: '#111827', letterSpacing: '-0.02em', lineHeight: 1.2 }}>
+              Welcome back
+            </h1>
+            <p style={{ margin: '8px 0 0', fontSize: 14, color: '#6B7280', lineHeight: 1.5 }}>
+              Sign in to your workspace. Access is granted by your company admin.
+            </p>
           </div>
-          <div className="field">
-            <label>Password</label>
-            <input
-              type="password"
-              value={password}
-              onChange={e => setPassword(e.target.value)}
-              placeholder="••••••••"
-              autoComplete="current-password"
-              required
-            />
-            <div className="helper-text">If you don&apos;t have access, ask your company admin to create a user.</div>
+
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="stack-lg">
+            <div className="field">
+              <label>Username</label>
+              <input
+                value={username}
+                onChange={e => setUsername(e.target.value)}
+                placeholder="your.username"
+                autoComplete="username"
+                required
+                style={{ padding: '10px 12px', fontSize: 15 }}
+              />
+            </div>
+
+            <div className="field">
+              <label>Password</label>
+              <input
+                type="password"
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                placeholder="••••••••"
+                autoComplete="current-password"
+                required
+                style={{ padding: '10px 12px', fontSize: 15 }}
+              />
+              <div className="helper-text">Don&apos;t have access? Ask your company admin to create an account for you.</div>
+            </div>
+
+            {error && <div className="error-text">{error}</div>}
+
+            <button
+              className="btn btn-primary full-width"
+              type="submit"
+              disabled={loading}
+              style={{ padding: '11px 16px', fontSize: 15, justifyContent: 'center', marginTop: 4 }}
+            >
+              {loading ? 'Signing in…' : 'Sign in →'}
+            </button>
+          </form>
+
+          {/* Meta chips */}
+          <div className="chip-row" style={{ marginTop: 20 }}>
+            <div className="chip">🔒 JWT secured</div>
+            <div className="chip">Role-aware workspace</div>
+            <div className="chip">No public registration</div>
           </div>
-          {error && <div className="error-text">{error}</div>}
-          <button className="btn btn-primary full-width" type="submit" disabled={loading}>
-            {loading ? 'Signing in…' : 'Sign in'}
-          </button>
-        </form>
-        <div className="chip-row">
-          <div className="chip">JWT via API gateway</div>
-          <div className="chip">No public registration</div>
-          <div className="chip">Role-aware workspace</div>
         </div>
       </div>
     </div>
   );
 };
-
