@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
 interface TenantState {
   customerId: number | null;
@@ -31,20 +31,26 @@ export const TenantProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   }, [state]);
 
+  const setCustomerId = useCallback((id: number | null) => {
+    setState(prev => prev.customerId === id ? prev : { ...prev, customerId: id, companyId: null });
+  }, []);
+
+  const setCompanyId = useCallback((id: number | null) => {
+    setState(prev => prev.companyId === id ? prev : { ...prev, companyId: id });
+  }, []);
+
+  const setEmployeeId = useCallback((id: number | null) => {
+    setState(prev => prev.employeeId === id ? prev : { ...prev, employeeId: id });
+  }, []);
+
   const value = useMemo<TenantContextValue>(
     () => ({
       ...state,
-      setCustomerId(id) {
-        setState(prev => ({ ...prev, customerId: id, companyId: null }));
-      },
-      setCompanyId(id) {
-        setState(prev => ({ ...prev, companyId: id }));
-      },
-      setEmployeeId(id) {
-        setState(prev => ({ ...prev, employeeId: id }));
-      }
+      setCustomerId,
+      setCompanyId,
+      setEmployeeId
     }),
-    [state]
+    [state, setCustomerId, setCompanyId, setEmployeeId]
   );
 
   return <TenantContext.Provider value={value}>{children}</TenantContext.Provider>;

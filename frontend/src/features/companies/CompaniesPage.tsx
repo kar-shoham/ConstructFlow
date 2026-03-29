@@ -10,6 +10,7 @@ export const CompaniesPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [editing, setEditing] = useState<CompanyDto | null>(null);
   const [formOpen, setFormOpen] = useState(false);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
   const [form, setForm] = useState({ name: '', code: '' });
 
   const load = () => {
@@ -63,7 +64,7 @@ export const CompaniesPage: React.FC = () => {
   };
 
   const remove = async (id: number) => {
-    if (!customerId || !window.confirm('Delete this company?')) return;
+    if (!customerId) return;
     setError(null);
     try {
       await api.delete(`/customers/${customerId}/companies/${id}`);
@@ -97,7 +98,7 @@ export const CompaniesPage: React.FC = () => {
       </div>
       {error && <div className="error-text" style={{ marginBottom: 10 }}>{error}</div>}
       {formOpen && (
-        <form className="panel" style={{ marginBottom: 16 }} onSubmit={save}>
+        <form className="panel" style={{ marginBottom: 16 }} onSubmit={save} autoComplete="off">
           <div className="panel-title">{editing ? 'Edit company' : 'New company'}</div>
           <div className="form-grid">
             <div className="field">
@@ -129,8 +130,20 @@ export const CompaniesPage: React.FC = () => {
                   <td><span className="badge badge-muted">{row.code}</span></td>
                   <td>{row.name}</td>
                   <td>
-                    <button type="button" className="btn btn-ghost" onClick={() => openEdit(row)}>Edit</button>
-                    <button type="button" className="btn btn-ghost btn-danger" onClick={() => row.id != null && remove(row.id)}>Delete</button>
+                    <div className="row" style={{ gap: 6 }}>
+                      {deletingId === row.id ? (
+                        <>
+                          <span className="error-text" style={{ fontSize: 13, alignSelf: 'center' }}>Confirm?</span>
+                          <button type="button" className="btn btn-danger btn-sm" onClick={() => row.id != null && remove(row.id)}>Delete</button>
+                          <button type="button" className="btn btn-ghost btn-sm" onClick={() => setDeletingId(null)}>Cancel</button>
+                        </>
+                      ) : (
+                        <>
+                          <button type="button" className="btn btn-ghost" onClick={() => openEdit(row)}>Edit</button>
+                          <button type="button" className="btn btn-ghost btn-danger" onClick={() => setDeletingId(row.id ?? null)}>Delete</button>
+                        </>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))}

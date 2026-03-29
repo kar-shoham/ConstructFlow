@@ -22,6 +22,7 @@ export const ProjectsPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [editing, setEditing] = useState<ProjectDto | null>(null);
   const [formOpen, setFormOpen] = useState(false);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
   const [form, setForm] = useState({ name: '', code: '', projectStatus: 'NOT_STARTED' as ProjectDto['projectStatus'] });
 
   const load = () => {
@@ -69,7 +70,7 @@ export const ProjectsPage: React.FC = () => {
   };
 
   const remove = async (id: number) => {
-    if (!customerId || !window.confirm('Delete this project?')) return;
+    if (!customerId) return;
     setError(null);
     try {
       await api.delete(`/customers/${customerId}/projects/${id}`);
@@ -103,7 +104,7 @@ export const ProjectsPage: React.FC = () => {
       {error && <div className="error-text" style={{ marginBottom: 12 }}>{error}</div>}
 
       {formOpen && (
-        <form className="panel" style={{ marginBottom: 16 }} onSubmit={save}>
+        <form className="panel" style={{ marginBottom: 16 }} onSubmit={save} autoComplete="off">
           <div className="panel-title" style={{ marginBottom: 12 }}>{editing ? 'Edit project' : 'New project'}</div>
           <div className="form-grid">
             <div className="field">
@@ -181,8 +182,18 @@ export const ProjectsPage: React.FC = () => {
                   </td>
                   <td>
                     <div className="row" style={{ gap: 6, justifyContent: 'flex-end' }}>
-                      <button type="button" className="btn btn-ghost" onClick={() => openEdit(row)}>Edit</button>
-                      <button type="button" className="btn btn-ghost btn-danger" onClick={() => row.id != null && remove(row.id)}>Delete</button>
+                      {deletingId === row.id ? (
+                        <>
+                          <span className="error-text" style={{ fontSize: 13, alignSelf: 'center' }}>Confirm?</span>
+                          <button type="button" className="btn btn-danger btn-sm" onClick={() => row.id != null && remove(row.id)}>Delete</button>
+                          <button type="button" className="btn btn-ghost btn-sm" onClick={() => setDeletingId(null)}>Cancel</button>
+                        </>
+                      ) : (
+                        <>
+                          <button type="button" className="btn btn-ghost" onClick={() => openEdit(row)}>Edit</button>
+                          <button type="button" className="btn btn-ghost btn-danger" onClick={() => setDeletingId(row.id ?? null)}>Delete</button>
+                        </>
+                      )}
                     </div>
                   </td>
                 </tr>

@@ -121,7 +121,7 @@ export const LoginPage: React.FC = () => {
                 value={username}
                 onChange={e => setUsername(e.target.value)}
                 placeholder="your.username"
-                autoComplete="username"
+                autoComplete="off"
                 required
                 style={{ padding: '10px 12px', fontSize: 15 }}
               />
@@ -130,11 +130,12 @@ export const LoginPage: React.FC = () => {
             <div className="field">
               <label>Password</label>
               <input
-                type="password"
+                type="text"
                 value={password}
                 onChange={e => setPassword(e.target.value)}
                 placeholder="••••••••"
-                autoComplete="current-password"
+                autoComplete="off"
+                className="no-password-manager"
                 required
                 style={{ padding: '10px 12px', fontSize: 15 }}
               />

@@ -25,7 +25,7 @@ export const TimesheetsPage: React.FC = () => {
   const [formOpen, setFormOpen] = useState(false);
   const [form, setForm] = useState<Partial<TimesheetDto>>({
     employeeId: undefined, projectId: undefined, taskId: undefined, costCodeId: undefined,
-    seconds: 0, dateWorked: new Date().toISOString().slice(0, 10), startTime: '09:00:00',
+    seconds: 'PT0S', dateWorked: new Date().toISOString().slice(0, 10), startTime: '09:00:00',
   });
   const [durationHours, setDurationHours] = useState(8);
   const [durationMinutes, setDurationMinutes] = useState(0);
@@ -34,6 +34,7 @@ export const TimesheetsPage: React.FC = () => {
   const [filterEmployeeId, setFilterEmployeeId] = useState<string>('');
   const [filterStart, setFilterStart] = useState('');
   const [filterEnd, setFilterEnd] = useState('');
+  const [deletingId, setDeletingId] = useState<number | null>(null);
 
   const isAdmin        = auth.userRole === 'ADMIN';
   const isWorker       = currentEmployee?.employeeRole === 'WORKER';
@@ -47,7 +48,7 @@ export const TimesheetsPage: React.FC = () => {
       api.get<EmployeeDto[]>(`/customers/${customerId}/employees`).then(res => setEmployees(res.data));
     } else if (isCompanyAdmin && companyId) {
       api.get<EmployeeDto[]>(`/customers/${customerId}/companies/${companyId}/employees`).then(res => setEmployees(res.data));
-    } else if (isCustomerAdmin || isWorker) {
+    } else if (isCustomerAdmin) {
       api.get<EmployeeDto[]>(`/customers/${customerId}/employees`).then(res => setEmployees(res.data));
     } else {
       setEmployees([]);
@@ -61,6 +62,7 @@ export const TimesheetsPage: React.FC = () => {
     const params = new URLSearchParams();
     const effectiveEmployeeFilter = isWorker && currentEmployee ? String(currentEmployee.id) : filterEmployeeId;
     if (effectiveEmployeeFilter) params.set('employee-id', effectiveEmployeeFilter);
+    if (isCompanyAdmin && companyId) params.set('company-id', String(companyId));
     if (filterStart) params.set('start-date', filterStart);
     if (filterEnd)   params.set('end-date', filterEnd);
     timesheetApi
@@ -88,7 +90,7 @@ export const TimesheetsPage: React.FC = () => {
     const defaultEmployeeId = isWorker && currentEmployee ? currentEmployee.id : undefined;
     setForm({
       employeeId: defaultEmployeeId, projectId: undefined, taskId: undefined, costCodeId: undefined,
-      seconds: 0, dateWorked: new Date().toISOString().slice(0, 10), startTime: '09:00:00',
+      seconds: 'PT0S', dateWorked: new Date().toISOString().slice(0, 10), startTime: '09:00:00',
     });
     setDurationHours(8);
     setDurationMinutes(0);
@@ -107,7 +109,7 @@ export const TimesheetsPage: React.FC = () => {
       projectId: row.projectId,
       taskId: row.taskId,
       costCodeId: row.costCodeId,
-      seconds: seconds,
+      seconds: row.seconds,
       dateWorked: typeof row.dateWorked === 'string' ? row.dateWorked.slice(0, 10) : new Date().toISOString().slice(0, 10),
       startTime: startTimeForm,
     });
@@ -148,7 +150,7 @@ export const TimesheetsPage: React.FC = () => {
       setFormOpen(false);
       setForm({
         employeeId: undefined, projectId: undefined, taskId: undefined, costCodeId: undefined,
-        seconds: 0, dateWorked: new Date().toISOString().slice(0, 10), startTime: '09:00:00',
+        seconds: 'PT0S', dateWorked: new Date().toISOString().slice(0, 10), startTime: '09:00:00',
       });
     } catch (err: any) {
       setError(err?.response?.data?.message ?? 'Save failed');
@@ -156,7 +158,7 @@ export const TimesheetsPage: React.FC = () => {
   };
 
   const remove = async (id: number) => {
-    if (!customerId || !window.confirm('Delete this timesheet entry?')) return;
+    if (!customerId) return;
     setError(null);
     try {
       await timesheetApi.delete(`/customers/${customerId}/timesheets/${id}`);
@@ -216,7 +218,7 @@ export const TimesheetsPage: React.FC = () => {
 
       {/* Form */}
       {formOpen && (
-        <form className="panel" style={{ marginBottom: 16 }} onSubmit={save}>
+        <form className="panel" style={{ marginBottom: 16 }} onSubmit={save} autoComplete="off">
           <div className="panel-title" style={{ marginBottom: 12 }}>{editing ? 'Edit timesheet' : 'New timesheet'}</div>
           <div className="form-grid">
             {isWorker ? (
@@ -334,7 +336,7 @@ export const TimesheetsPage: React.FC = () => {
           <table className="table">
             <thead>
               <tr>
-                <th>Employee</th>
+                {!isWorker && <th>Employee</th>}
                 <th>Project</th>
                 <th>Date</th>
                 <th>Start</th>
@@ -345,20 +347,35 @@ export const TimesheetsPage: React.FC = () => {
             <tbody>
               {list.map(row => {
                 const emp  = employees.find(e => e.id === row.employeeId);
+                const empName = emp
+                  ? `${emp.firstName} ${emp.lastName}`
+                  : (row.employeeId === currentEmployee?.id)
+                    ? `${currentEmployee.firstName} ${currentEmployee.lastName}`
+                    : row.employeeId;
                 const proj = projects.find(p => p.id === row.projectId);
                 const sec  = parseDurationToSeconds(row.seconds as string | number);
                 return (
                   <tr key={row.id}>
-                    <td style={{ fontWeight: 500 }}>{emp ? `${emp.firstName} ${emp.lastName}` : row.employeeId}</td>
+                    {!isWorker && <td style={{ fontWeight: 500 }}>{empName}</td>}
                     <td>{proj ? proj.name : row.projectId}</td>
                     <td className="muted">{typeof row.dateWorked === 'string' ? row.dateWorked.slice(0, 10) : String(row.dateWorked)}</td>
                     <td className="muted">{String(row.startTime).slice(0, 5)}</td>
                     <td><span className="badge badge-blue">{formatSeconds(sec)}</span></td>
                     <td>
                       <div className="row" style={{ gap: 6, justifyContent: 'flex-end' }}>
-                        <button type="button" className="btn btn-ghost" onClick={() => openEdit(row)}>Edit</button>
-                        {!isWorker && (
-                          <button type="button" className="btn btn-ghost btn-danger" onClick={() => row.id != null && remove(row.id)}>Delete</button>
+                        {deletingId === row.id ? (
+                          <>
+                            <span className="error-text" style={{ fontSize: 13, alignSelf: 'center' }}>Confirm?</span>
+                            <button type="button" className="btn btn-danger btn-sm" onClick={() => row.id != null && remove(row.id)}>Delete</button>
+                            <button type="button" className="btn btn-ghost btn-sm" onClick={() => setDeletingId(null)}>Cancel</button>
+                          </>
+                        ) : (
+                          <>
+                            <button type="button" className="btn btn-ghost" onClick={() => openEdit(row)}>Edit</button>
+                            {!isWorker && (
+                              <button type="button" className="btn btn-ghost btn-danger" onClick={() => setDeletingId(row.id ?? null)}>Delete</button>
+                            )}
+                          </>
                         )}
                       </div>
                     </td>

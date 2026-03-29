@@ -659,6 +659,12 @@ button { font-family: inherit; cursor: pointer; }
   cursor: not-allowed;
 }
 
+/* Mask text as dots (for password suppression) */
+.no-password-manager {
+  -webkit-text-security: disc !important;
+  text-security: disc !important;
+}
+
 /* ===========================
    BUTTONS
    =========================== */

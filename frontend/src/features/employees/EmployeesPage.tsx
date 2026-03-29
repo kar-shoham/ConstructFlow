@@ -22,6 +22,7 @@ export const EmployeesPage: React.FC = () => {
     firstName: '', lastName: '', username: '', email: '', password: '',
     payRate: undefined, employeeType: 'HOURLY', employeeRole: 'WORKER'
   });
+  const [deletingId, setDeletingId] = useState<number | null>(null);
 
   const isAdmin = auth.userRole === 'ADMIN';
   const isCustomerAdmin = currentEmployee?.employeeRole === 'CUSTOMER_ADMIN';
@@ -29,11 +30,11 @@ export const EmployeesPage: React.FC = () => {
 
   // Load companies so admin can pick one in the form
   useEffect(() => {
-    if (!isAdmin || !customerId) return;
+    if (!(isAdmin || isCustomerAdmin) || !customerId) return;
     api.get<CompanyOption[]>(`/customers/${customerId}/companies`)
       .then(res => setCompanies(res.data))
       .catch(() => {});
-  }, [isAdmin, customerId]);
+  }, [isAdmin, isCustomerAdmin, customerId]);
 
   const load = () => {
     if (!customerId) {
@@ -71,6 +72,10 @@ export const EmployeesPage: React.FC = () => {
 
   const openEdit = (row: EmployeeDto) => {
     setEditing(row);
+    if (isCompanyAdmin && row.companyId !== companyId) {
+      setError("Permission denied: You can only edit employees in your own company.");
+      return;
+    }
     setFormOpen(true);
     setFormCompanyId(row.companyId ?? companyId);
     setForm({
@@ -81,7 +86,7 @@ export const EmployeesPage: React.FC = () => {
 
   const save = async (e: React.FormEvent) => {
     e.preventDefault();
-    const effectiveCompanyId = formCompanyId ?? companyId;
+    const effectiveCompanyId = (isAdmin || isCustomerAdmin) ? (formCompanyId ?? companyId) : companyId;
     if (!customerId || !effectiveCompanyId) {
       setError('Select a company before saving.');
       return;
@@ -109,8 +114,8 @@ export const EmployeesPage: React.FC = () => {
   };
 
   const remove = async (id: number) => {
-    const effectiveCompanyId = formCompanyId ?? companyId;
-    if (!customerId || !effectiveCompanyId || !window.confirm('Delete this employee?')) return;
+    const effectiveCompanyId = (isAdmin || isCustomerAdmin) ? (formCompanyId ?? companyId) : companyId;
+    if (!customerId || !effectiveCompanyId) return;
     setError(null);
     try {
       await api.delete(`/customers/${customerId}/companies/${effectiveCompanyId}/employees/${id}`);
@@ -139,7 +144,7 @@ export const EmployeesPage: React.FC = () => {
     );
   }
 
-  const canCreateEdit = isAdmin || isCompanyAdmin;
+  const canCreateEdit = isAdmin || isCustomerAdmin || isCompanyAdmin;
 
   return (
     <div className="content-card">
@@ -156,10 +161,10 @@ export const EmployeesPage: React.FC = () => {
       </div>
       {error && <div className="error-text" style={{ marginBottom: 10 }}>{error}</div>}
       {formOpen && canCreateEdit && (
-        <form className="panel" style={{ marginBottom: 16 }} onSubmit={save}>
+        <form className="panel" style={{ marginBottom: 16 }} onSubmit={save} autoComplete="off">
           <div className="panel-title">{editing ? 'Edit employee' : 'New employee'}</div>
           <div className="form-grid">
-            {isAdmin && (
+            {(isAdmin || isCustomerAdmin) && (
               <div className="field">
                 <label>Company</label>
                 <select
@@ -193,7 +198,14 @@ export const EmployeesPage: React.FC = () => {
             {!editing?.id && (
               <div className="field">
                 <label>Password</label>
-                <input type="password" value={form.password ?? ''} onChange={e => setForm(f => ({ ...f, password: e.target.value }))} required />
+                <input 
+                  type="text" 
+                  className="no-password-manager"
+                  value={form.password ?? ''} 
+                  onChange={e => setForm(f => ({ ...f, password: e.target.value }))} 
+                  required 
+                  autoComplete="off" 
+                />
               </div>
             )}
             <div className="field">
@@ -240,10 +252,20 @@ export const EmployeesPage: React.FC = () => {
                   <td><span className="badge badge-accent">{row.employeeRole ?? 'WORKER'}</span></td>
                   <td>
                     {canCreateEdit && (
-                      <>
-                        <button type="button" className="btn btn-ghost" onClick={() => openEdit(row)}>Edit</button>
-                        <button type="button" className="btn btn-ghost btn-danger" onClick={() => row.id != null && remove(row.id)}>Delete</button>
-                      </>
+                      <div className="row" style={{ gap: 6, justifyContent: 'flex-end' }}>
+                        {deletingId === row.id ? (
+                          <>
+                            <span className="error-text" style={{ fontSize: 13, alignSelf: 'center' }}>Confirm?</span>
+                            <button type="button" className="btn btn-danger btn-sm" onClick={() => row.id != null && remove(row.id)}>Delete</button>
+                            <button type="button" className="btn btn-ghost btn-sm" onClick={() => setDeletingId(null)}>Cancel</button>
+                          </>
+                        ) : (
+                          <>
+                            <button type="button" className="btn btn-ghost" onClick={() => openEdit(row)}>Edit</button>
+                            <button type="button" className="btn btn-ghost btn-danger" onClick={() => setDeletingId(row.id ?? null)}>Delete</button>
+                          </>
+                        )}
+                      </div>
                     )}
                   </td>
                 </tr>

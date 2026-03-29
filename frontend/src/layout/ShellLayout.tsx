@@ -41,7 +41,13 @@ export const ShellLayout: React.FC = () => {
     if (employeeRole === 'WORKER') {
       return NAV_ITEMS.filter(i => i.to === '/dashboard' || i.to === '/timesheets');
     }
-    if (employeeRole === 'COMPANY_ADMIN' || employeeRole === 'CUSTOMER_ADMIN') {
+    if (employeeRole === 'CUSTOMER_ADMIN') {
+      return NAV_ITEMS.filter(i => [
+        '/dashboard', '/companies', '/projects', '/employees', 
+        '/tasks', '/cost-codes', '/project-budgets', '/timesheets'
+      ].includes(i.to));
+    }
+    if (employeeRole === 'COMPANY_ADMIN') {
       return NAV_ITEMS.filter(i => ['/dashboard', '/employees', '/timesheets'].includes(i.to));
     }
     return NAV_ITEMS.filter(i => i.to === '/dashboard' || i.to === '/timesheets');

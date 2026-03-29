@@ -32,6 +32,15 @@ const RequireAdmin: React.FC<{ children: React.ReactNode }> = ({ children }) => 
   return <>{children}</>;
 };
 
+/** Allow ADMIN or USER with CUSTOMER_ADMIN. */
+const RequireCustomerAdminOrAbove: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { userRole } = useAuth();
+  const { currentEmployee } = useCurrentEmployee();
+  if (userRole === 'ADMIN') return <>{children}</>;
+  if (currentEmployee?.employeeRole === 'CUSTOMER_ADMIN') return <>{children}</>;
+  return <Navigate to="/dashboard" replace />;
+};
+
 /** Allow ADMIN or USER with COMPANY_ADMIN / CUSTOMER_ADMIN (for Employees page). */
 const RequireEmployeeAdmin: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { userRole } = useAuth();
@@ -84,9 +93,9 @@ export const App: React.FC = () => {
         <Route
           path="companies"
           element={
-            <RequireAdmin>
+            <RequireCustomerAdminOrAbove>
               <CompaniesPage />
-            </RequireAdmin>
+            </RequireCustomerAdminOrAbove>
           }
         />
         <Route path="projects" element={<ProjectsPage />} />
@@ -102,17 +111,17 @@ export const App: React.FC = () => {
         <Route
           path="cost-codes"
           element={
-            <RequireAdmin>
+            <RequireCustomerAdminOrAbove>
               <CostCodesPage />
-            </RequireAdmin>
+            </RequireCustomerAdminOrAbove>
           }
         />
         <Route
           path="project-budgets"
           element={
-            <RequireAdmin>
+            <RequireCustomerAdminOrAbove>
               <ProjectBudgetsPage />
-            </RequireAdmin>
+            </RequireCustomerAdminOrAbove>
           }
         />
         <Route path="timesheets" element={<TimesheetsPage />} />
