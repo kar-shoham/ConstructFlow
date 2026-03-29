@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Objects;
 
 @Service
@@ -58,5 +59,15 @@ public class TimesheetValidationServiceImpl
                 .valid(true)
                 .message("Valid Ids, can create Timesheet!")
                 .build();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Long> getEmployeeIdsByCompany(@NonNull Long customerId, @NonNull Long companyId)
+    {
+        return employeeRepository.getEmployeesByCompanyId(companyId).stream()
+                .filter(e -> e.getCompany().getCustomer().getId().equals(customerId))
+                .map(e -> e.getId())
+                .toList();
     }
 }

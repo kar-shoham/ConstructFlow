@@ -44,6 +44,7 @@ public class TimesheetServiceImpl
             @NonNull Map<String, String> queries)
     {
         Long employeeId = Objects.nonNull(queries.get("employee-id")) ? Long.valueOf(queries.get("employee-id")) : null;
+        Long companyId = Objects.nonNull(queries.get("company-id")) ? Long.valueOf(queries.get("company-id")) : null;
         Date startDate = Objects.nonNull(queries.get("start-date")) ? Date.valueOf(queries.get("start-date")) : null;
         Date endDate = Objects.nonNull(queries.get("end-date")) ? Date.valueOf(queries.get("end-date")) : null;
 
@@ -53,6 +54,16 @@ public class TimesheetServiceImpl
             timesheets = timesheets.stream()
                     .filter(t -> t.getEmployeeId().equals(employeeId))
                     .toList();
+        }
+        if (companyId != null) {
+            List<Long> companyEmployeeIds = validationClient.getEmployeeIdsByCompany(customerId, companyId).getBody();
+            if (Objects.nonNull(companyEmployeeIds)) {
+                timesheets = timesheets.stream()
+                        .filter(t -> companyEmployeeIds.contains(t.getEmployeeId()))
+                        .toList();
+            } else {
+                timesheets = List.of();
+            }
         }
         if (startDate != null) {
             timesheets = timesheets.stream()
