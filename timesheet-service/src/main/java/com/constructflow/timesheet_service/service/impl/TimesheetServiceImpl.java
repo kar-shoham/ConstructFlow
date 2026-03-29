@@ -46,7 +46,26 @@ public class TimesheetServiceImpl
         Long employeeId = Objects.nonNull(queries.get("employee-id")) ? Long.valueOf(queries.get("employee-id")) : null;
         Date startDate = Objects.nonNull(queries.get("start-date")) ? Date.valueOf(queries.get("start-date")) : null;
         Date endDate = Objects.nonNull(queries.get("end-date")) ? Date.valueOf(queries.get("end-date")) : null;
-        return repository.getTimesheetsList(customerId, employeeId, startDate, endDate);
+
+        List<Timesheet> timesheets = repository.findByCustomerId(customerId);
+
+        if (employeeId != null) {
+            timesheets = timesheets.stream()
+                    .filter(t -> t.getEmployeeId().equals(employeeId))
+                    .toList();
+        }
+        if (startDate != null) {
+            timesheets = timesheets.stream()
+                    .filter(t -> !t.getDateWorked().before(startDate))
+                    .toList();
+        }
+        if (endDate != null) {
+            timesheets = timesheets.stream()
+                    .filter(t -> !t.getDateWorked().after(endDate))
+                    .toList();
+        }
+
+        return timesheets;
     }
 
     @Override

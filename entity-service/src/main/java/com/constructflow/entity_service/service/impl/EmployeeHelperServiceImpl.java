@@ -60,7 +60,8 @@ public class EmployeeHelperServiceImpl
         entity.setCreatedBy(getLoggedInUserId());
         entity.setModifiedBy(getLoggedInUserId());
         entity = employeeService.create(customerId, companyId, entity);
-        return EmployeeConverter.instance.toDto(null, entity);
+        Map<ObjectType, Object> ref = Map.of(ObjectType.Username, userDto.getUsername(), ObjectType.Email, userDto.getEmail());
+        return EmployeeConverter.instance.toDto(ref, entity);
     }
 
     @Override
@@ -72,12 +73,14 @@ public class EmployeeHelperServiceImpl
             @NonNull EmployeeDto employeeDto)
     {
         authUtils.validateAccessForCompanyAdmin(customerId, companyId);
+        Employee dbEmployee = employeeService.get(customerId, companyId, employeeId);
         AuthRequestDto authDto = getAuthRequestDto(employeeDto);
-        UserDto userDto = userClient.update(employeeDto.getUserId(), authDto);
+        UserDto userDto = userClient.update(dbEmployee.getUserId(), authDto);
         Employee entity = EmployeeConverter.instance.toEntity(Map.of(ObjectType.UserId, userDto.getId()), employeeDto);
         entity.setModifiedBy(getLoggedInUserId());
         entity = employeeService.update(customerId, companyId, employeeId, entity);
-        return EmployeeConverter.instance.toDto(null, entity);
+        Map<ObjectType, Object> ref = Map.of(ObjectType.Username, userDto.getUsername(), ObjectType.Email, userDto.getEmail());
+        return EmployeeConverter.instance.toDto(ref, entity);
     }
 
     private AuthRequestDto getAuthRequestDto(@NonNull EmployeeDto employeeDto)

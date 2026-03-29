@@ -1,8 +1,11 @@
 package com.constructflow.entity_service.controller;
 
+import com.constructflow.entity_service.client.CFUserClient;
 import com.constructflow.entity_service.converter.EmployeeConverter;
 import com.constructflow.entity_service.dto.EmployeeDto;
+import com.constructflow.entity_service.dto.UserDto;
 import com.constructflow.entity_service.entity.Employee;
+import com.constructflow.entity_service.enums.ObjectType;
 import com.constructflow.entity_service.service.EmployeeHelperService;
 import com.constructflow.entity_service.service.EmployeeService;
 import jakarta.validation.Valid;
@@ -19,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -31,12 +35,21 @@ public class EmployeeRestController
     @Autowired
     private EmployeeHelperService employeeHelperService;
 
+    @Autowired
+    private CFUserClient userClient;
+
     @GetMapping("/employees")
     public ResponseEntity<List<EmployeeDto>> listForCustomer(@PathVariable @NonNull Long customerId)
     {
         List<Employee> entities = employeeService.listForCustomer(customerId);
         return ResponseEntity.ok(entities.stream()
-                .map(entity -> EmployeeConverter.instance.toDto(null, entity))
+                .map(entity -> {
+                    UserDto userDto = userClient.get(entity.getUserId());
+                    Map<ObjectType, Object> ref = Map.of(
+                            ObjectType.Username, userDto.getUsername(),
+                            ObjectType.Email, userDto.getEmail());
+                    return EmployeeConverter.instance.toDto(ref, entity);
+                })
                 .collect(Collectors.toUnmodifiableList()));
     }
 
@@ -47,7 +60,13 @@ public class EmployeeRestController
     {
         List<Employee> entities = employeeService.list(customerId, companyId);
         return ResponseEntity.ok(entities.stream()
-                .map(entity -> EmployeeConverter.instance.toDto(null, entity))
+                .map(entity -> {
+                    UserDto userDto = userClient.get(entity.getUserId());
+                    Map<ObjectType, Object> ref = Map.of(
+                            ObjectType.Username, userDto.getUsername(),
+                            ObjectType.Email, userDto.getEmail());
+                    return EmployeeConverter.instance.toDto(ref, entity);
+                })
                 .collect(Collectors.toUnmodifiableList()));
     }
 
