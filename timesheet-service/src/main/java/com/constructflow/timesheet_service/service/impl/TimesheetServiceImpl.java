@@ -187,4 +187,20 @@ public class TimesheetServiceImpl
         dbTimesheet.setModifiedBy(getLoggedInUserId());
         return repository.save(dbTimesheet);
     }
+
+    @Override
+    public Timesheet markPaid(
+            @NonNull Long customerId,
+            @NonNull Long timesheetId)
+    {
+        Timesheet dbTimesheet = get(customerId, timesheetId);
+        if (dbTimesheet.getStatus() != TimesheetStatus.APPROVED) {
+            throw new RuntimeException("Timesheet must be in APPROVED status to mark as paid. Current status: " + dbTimesheet.getStatus());
+        }
+        dbTimesheet.setStatus(TimesheetStatus.PAID);
+        dbTimesheet.setModifiedBy(getLoggedInUserId());
+        Timesheet savedTimesheet = repository.save(dbTimesheet);
+        log.info("Marked timesheet {} as PAID", timesheetId);
+        return savedTimesheet;
+    }
 }

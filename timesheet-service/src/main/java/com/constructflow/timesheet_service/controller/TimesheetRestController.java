@@ -86,4 +86,13 @@ public class TimesheetRestController
         Timesheet entity = timesheetService.reject(customerId, timesheetId);
         return ResponseEntity.ok(TimesheetConverter.instance.toDto(null, entity));
     }
+
+    @PostMapping("/{timesheetId}/mark-paid")
+    public ResponseEntity<TimesheetDto> markPaid(
+            @PathVariable @NonNull Long customerId,
+            @PathVariable @NonNull Long timesheetId)
+    {
+        Timesheet entity = timesheetService.markPaid(customerId, timesheetId);
+        return ResponseEntity.ok(TimesheetConverter.instance.toDto(null, entity));
+    }
 }

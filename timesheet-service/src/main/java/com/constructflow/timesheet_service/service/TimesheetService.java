@@ -33,4 +33,8 @@ public interface TimesheetService
     Timesheet reject(
             @NonNull Long customerId,
             @NonNull Long timesheetId);
+
+    Timesheet markPaid(
+            @NonNull Long customerId,
+            @NonNull Long timesheetId);
 }
