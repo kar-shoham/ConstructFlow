@@ -22,7 +22,6 @@ export const EmployeesPage: React.FC = () => {
     firstName: '', lastName: '', username: '', email: '', password: '',
     payRate: undefined, employeeType: 'HOURLY', employeeRole: 'WORKER'
   });
-  const [deletingId, setDeletingId] = useState<number | null>(null);
 
   const isAdmin = auth.userRole === 'ADMIN';
   const isCustomerAdmin = currentEmployee?.employeeRole === 'CUSTOMER_ADMIN';
@@ -110,20 +109,6 @@ export const EmployeesPage: React.FC = () => {
       setForm({ firstName: '', lastName: '', username: '', email: '', password: '', payRate: undefined, employeeType: 'HOURLY', employeeRole: 'WORKER' });
     } catch (err: any) {
       setError(err?.response?.data?.message ?? 'Save failed');
-    }
-  };
-
-  const remove = async (id: number) => {
-    const effectiveCompanyId = (isAdmin || isCustomerAdmin) ? (formCompanyId ?? companyId) : companyId;
-    if (!customerId || !effectiveCompanyId) return;
-    setError(null);
-    try {
-      await api.delete(`/customers/${customerId}/companies/${effectiveCompanyId}/employees/${id}`);
-      load();
-      setEditing(null);
-      setFormOpen(false);
-    } catch (err: any) {
-      setError(err?.response?.data?.message ?? 'Delete failed');
     }
   };
 
@@ -253,18 +238,7 @@ export const EmployeesPage: React.FC = () => {
                   <td>
                     {canCreateEdit && (
                       <div className="row" style={{ gap: 6, justifyContent: 'flex-end' }}>
-                        {deletingId === row.id ? (
-                          <>
-                            <span className="error-text" style={{ fontSize: 13, alignSelf: 'center' }}>Confirm?</span>
-                            <button type="button" className="btn btn-danger btn-sm" onClick={() => row.id != null && remove(row.id)}>Delete</button>
-                            <button type="button" className="btn btn-ghost btn-sm" onClick={() => setDeletingId(null)}>Cancel</button>
-                          </>
-                        ) : (
-                          <>
-                            <button type="button" className="btn btn-ghost" onClick={() => openEdit(row)}>Edit</button>
-                            <button type="button" className="btn btn-ghost btn-danger" onClick={() => setDeletingId(row.id ?? null)}>Delete</button>
-                          </>
-                        )}
+                        <button type="button" className="btn btn-ghost" onClick={() => openEdit(row)}>Edit</button>
                       </div>
                     )}
                   </td>
