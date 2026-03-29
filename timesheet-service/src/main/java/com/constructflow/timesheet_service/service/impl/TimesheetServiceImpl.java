@@ -4,12 +4,14 @@ import com.constructflow.timesheet_service.client.TimesheetValidationClient;
 import com.constructflow.timesheet_service.dto.TimesheetValidationDto;
 import com.constructflow.timesheet_service.dto.TimesheetValidationResponseDto;
 import com.constructflow.timesheet_service.entity.Timesheet;
+import com.constructflow.timesheet_service.entity.TimesheetStatus;
 import com.constructflow.timesheet_service.repository.TimesheetRepository;
 import com.constructflow.timesheet_service.service.TimesheetService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 import java.sql.Date;
@@ -28,6 +30,9 @@ public class TimesheetServiceImpl
 
     @Autowired
     private TimesheetValidationClient validationClient;
+
+    @Autowired
+    private KafkaTemplate<String, String> kafkaTemplate;
 
     private Timesheet get(
             @NonNull Long customerId,
@@ -111,6 +116,10 @@ public class TimesheetServiceImpl
     {
         Timesheet dbTimesheet = get(customerId, timesheetId);
 
+        if (dbTimesheet.getStatus() != TimesheetStatus.SUBMITTED) {
+            throw new RuntimeException("Cannot update timesheet with status: " + dbTimesheet.getStatus());
+        }
+
         TimesheetValidationResponseDto validationResponse = validationClient.validateData(
                 TimesheetValidationDto.builder()
                         .customerId(customerId)
@@ -138,6 +147,44 @@ public class TimesheetServiceImpl
             @NonNull Long timesheetId)
     {
         Timesheet dbTimesheet = get(customerId, timesheetId);
+        if (dbTimesheet.getStatus() != TimesheetStatus.SUBMITTED) {
+            throw new RuntimeException("Cannot delete timesheet with status: " + dbTimesheet.getStatus());
+        }
         repository.delete(dbTimesheet);
+    }
+
+    @Override
+    public Timesheet approve(
+            @NonNull Long customerId,
+            @NonNull Long timesheetId)
+    {
+        Timesheet dbTimesheet = get(customerId, timesheetId);
+        if (dbTimesheet.getStatus() != TimesheetStatus.SUBMITTED) {
+            throw new RuntimeException("Timesheet must be in SUBMITTED status to approve. Current status: " + dbTimesheet.getStatus());
+        }
+        dbTimesheet.setStatus(TimesheetStatus.APPROVED);
+        dbTimesheet.setModifiedBy(getLoggedInUserId());
+        Timesheet savedTimesheet = repository.save(dbTimesheet);
+
+        String message = String.format("{\"timesheetId\":%d,\"employeeId\":%d,\"customerId\":%d}",
+                timesheetId, dbTimesheet.getEmployeeId(), customerId);
+        kafkaTemplate.send("timesheet-approved", message);
+        log.info("Published timesheet approval to Kafka: {}", message);
+
+        return savedTimesheet;
+    }
+
+    @Override
+    public Timesheet reject(
+            @NonNull Long customerId,
+            @NonNull Long timesheetId)
+    {
+        Timesheet dbTimesheet = get(customerId, timesheetId);
+        if (dbTimesheet.getStatus() != TimesheetStatus.SUBMITTED) {
+            throw new RuntimeException("Timesheet must be in SUBMITTED status to reject. Current status: " + dbTimesheet.getStatus());
+        }
+        dbTimesheet.setStatus(TimesheetStatus.REJECTED);
+        dbTimesheet.setModifiedBy(getLoggedInUserId());
+        return repository.save(dbTimesheet);
     }
 }

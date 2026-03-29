@@ -68,4 +68,22 @@ public class TimesheetRestController
         timesheetService.delete(customerId, timesheetId);
         return ResponseEntity.ok(true);
     }
+
+    @PostMapping("/{timesheetId}/approve")
+    public ResponseEntity<TimesheetDto> approve(
+            @PathVariable @NonNull Long customerId,
+            @PathVariable @NonNull Long timesheetId)
+    {
+        Timesheet entity = timesheetService.approve(customerId, timesheetId);
+        return ResponseEntity.ok(TimesheetConverter.instance.toDto(null, entity));
+    }
+
+    @PostMapping("/{timesheetId}/reject")
+    public ResponseEntity<TimesheetDto> reject(
+            @PathVariable @NonNull Long customerId,
+            @PathVariable @NonNull Long timesheetId)
+    {
+        Timesheet entity = timesheetService.reject(customerId, timesheetId);
+        return ResponseEntity.ok(TimesheetConverter.instance.toDto(null, entity));
+    }
 }

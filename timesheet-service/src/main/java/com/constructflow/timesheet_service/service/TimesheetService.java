@@ -25,4 +25,12 @@ public interface TimesheetService
     void delete(
             @NonNull Long customerId,
             @NonNull Long timesheetId);
+
+    Timesheet approve(
+            @NonNull Long customerId,
+            @NonNull Long timesheetId);
+
+    Timesheet reject(
+            @NonNull Long customerId,
+            @NonNull Long timesheetId);
 }

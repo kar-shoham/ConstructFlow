@@ -2,6 +2,8 @@ package com.constructflow.timesheet_service.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -45,4 +47,8 @@ public class Timesheet
 
     @Column(nullable = false)
     private Time startTime;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, columnDefinition = "VARCHAR(20) DEFAULT 'SUBMITTED'")
+    private TimesheetStatus status = TimesheetStatus.SUBMITTED;
 }
