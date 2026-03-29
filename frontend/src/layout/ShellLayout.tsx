@@ -2,7 +2,7 @@ import React from 'react';
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard, Users, Building2, Briefcase,
-  UsersRound, CheckSquare, DollarSign, BarChart3, Clock, LogOut,
+  UsersRound, CheckSquare, DollarSign, BarChart3, Clock, LogOut, Home
 } from 'lucide-react';
 import { useAuth } from '../state/AuthContext';
 import { useCurrentEmployee } from '../state/CurrentEmployeeContext';
@@ -10,7 +10,7 @@ import { useTenant } from '../state/TenantContext';
 import { TenantSwitcher } from './TenantSwitcher';
 
 const NAV_ITEMS: { to: string; label: string; icon: React.ReactNode }[] = [
-  { to: '/dashboard',      label: 'Overview',    icon: <LayoutDashboard size={15} /> },
+  { to: '/dashboard',      label: 'Dashboard',   icon: <Home size={15} /> },
   { to: '/customers',      label: 'Customers',   icon: <Users size={15} /> },
   { to: '/companies',      label: 'Companies',   icon: <Building2 size={15} /> },
   { to: '/projects',       label: 'Projects',    icon: <Briefcase size={15} /> },
@@ -55,7 +55,7 @@ export const ShellLayout: React.FC = () => {
 
   const currentLabel = React.useMemo(() => {
     const item = visibleNavItems.find(i => location.pathname.startsWith(i.to));
-    return item?.label ?? 'Overview';
+    return item?.label ?? 'Dashboard';
   }, [location.pathname, visibleNavItems]);
 
   const roleLabel = isAdmin

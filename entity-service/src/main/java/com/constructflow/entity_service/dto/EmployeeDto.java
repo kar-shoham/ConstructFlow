@@ -26,6 +26,7 @@ public class EmployeeDto extends BaseEntityDto {
     private EmployeeType employeeType;
     private EmployeeRole employeeRole;
     private Long companyId;
+    private String companyName;
     private AddressDto address;
     private Long userId;
     @Builder.Default

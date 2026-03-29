@@ -52,6 +52,7 @@ export interface EmployeeDto {
   employeeType?: EmployeeType;
   employeeRole?: EmployeeRole;
   companyId?: number;
+  companyName?: string;
   address?: AddressDto;
   userId?: number;
   username: string;

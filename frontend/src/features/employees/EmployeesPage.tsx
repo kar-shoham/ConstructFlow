@@ -225,13 +225,14 @@ export const EmployeesPage: React.FC = () => {
         <div style={{ overflowX: 'auto' }}>
           <table className="table">
             <thead>
-              <tr><th>Name</th><th>Username</th><th>Email</th><th>Type</th><th>Role</th><th></th></tr>
+              <tr><th>Name</th><th>Username</th><th>Company</th><th>Email</th><th>Type</th><th>Role</th><th></th></tr>
             </thead>
             <tbody>
               {list.map(row => (
                 <tr key={row.id}>
                   <td>{row.firstName} {row.lastName}</td>
                   <td>{row.username}</td>
+                  <td><span className="badge badge-muted">{row.companyName || '-'}</span></td>
                   <td>{row.email}</td>
                   <td><span className="badge badge-muted">{row.employeeType ?? 'HOURLY'}</span></td>
                   <td><span className="badge badge-accent">{row.employeeRole ?? 'WORKER'}</span></td>
