@@ -57,9 +57,8 @@ export const LoginPage: React.FC = () => {
 
         <div className="auth-brand-content">
           <div className="auth-brand-slogan">
-            Architectural<br />
             Precision in<br />
-            <span className="auth-brand-slogan-accent">Every Frame.</span>
+            <span className="auth-brand-slogan-accent">Every Build.</span>
           </div>
 
           <p className="auth-brand-desc">

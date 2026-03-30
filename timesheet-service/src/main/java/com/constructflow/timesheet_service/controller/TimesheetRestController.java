@@ -39,6 +39,15 @@ public class TimesheetRestController
                 .collect(Collectors.toUnmodifiableList()));
     }
 
+    @GetMapping("/{timesheetId}")
+    public ResponseEntity<TimesheetDto> get(
+            @PathVariable @NonNull Long customerId,
+            @PathVariable @NonNull Long timesheetId)
+    {
+        Timesheet entity = timesheetService.get(customerId, timesheetId);
+        return ResponseEntity.ok(TimesheetConverter.instance.toDto(null, entity));
+    }
+
     @PostMapping
     public ResponseEntity<TimesheetDto> create(
             @PathVariable @NonNull Long customerId,
@@ -67,5 +76,32 @@ public class TimesheetRestController
     {
         timesheetService.delete(customerId, timesheetId);
         return ResponseEntity.ok(true);
+    }
+
+    @PostMapping("/{timesheetId}/approve")
+    public ResponseEntity<TimesheetDto> approve(
+            @PathVariable @NonNull Long customerId,
+            @PathVariable @NonNull Long timesheetId)
+    {
+        Timesheet entity = timesheetService.approve(customerId, timesheetId);
+        return ResponseEntity.ok(TimesheetConverter.instance.toDto(null, entity));
+    }
+
+    @PostMapping("/{timesheetId}/reject")
+    public ResponseEntity<TimesheetDto> reject(
+            @PathVariable @NonNull Long customerId,
+            @PathVariable @NonNull Long timesheetId)
+    {
+        Timesheet entity = timesheetService.reject(customerId, timesheetId);
+        return ResponseEntity.ok(TimesheetConverter.instance.toDto(null, entity));
+    }
+
+    @PostMapping("/{timesheetId}/mark-paid")
+    public ResponseEntity<TimesheetDto> markPaid(
+            @PathVariable @NonNull Long customerId,
+            @PathVariable @NonNull Long timesheetId)
+    {
+        Timesheet entity = timesheetService.markPaid(customerId, timesheetId);
+        return ResponseEntity.ok(TimesheetConverter.instance.toDto(null, entity));
     }
 }

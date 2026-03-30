@@ -12,6 +12,7 @@ export interface AddressDto {
 export type Status = 'NOT_STARTED' | 'IN_PROGRESS' | 'COMPLETED';
 export type EmployeeType = 'HOURLY' | 'SALARIED';
 export type EmployeeRole = 'WORKER' | 'COMPANY_ADMIN' | 'CUSTOMER_ADMIN';
+export type TimesheetStatus = 'SUBMITTED' | 'APPROVED' | 'PAID' | 'REJECTED';
 
 export interface CustomerDto {
   id?: number;
@@ -109,6 +110,7 @@ export interface TimesheetDto {
   dateWorked: string;
   /** Time as HH:mm:ss. */
   startTime: string;
+  status?: TimesheetStatus;
   createdOn?: string;
   modifiedOn?: string;
 }
@@ -139,4 +141,19 @@ export function parseDurationToSeconds(value: string | number | undefined): numb
   if (m) sec += parseInt(m[1], 10) * 60;
   if (secMatch) sec += parseInt(secMatch[1], 10);
   return sec;
+}
+
+export type EarningStatus = 'COMPLETED' | 'FAILED';
+
+export interface EarningDto {
+  id?: number;
+  timesheetId: number;
+  employeeId: number;
+  customerId: number;
+  payRate: number;
+  hoursWorked: number;
+  grossAmount: number;
+  status?: EarningStatus;
+  createdOn?: string;
+  modifiedOn?: string;
 }

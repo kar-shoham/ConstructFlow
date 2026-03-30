@@ -2,7 +2,7 @@ import React from 'react';
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard, Users, Building2, Briefcase,
-  UsersRound, CheckSquare, DollarSign, BarChart3, Clock, LogOut, Home
+  UsersRound, CheckSquare, DollarSign, BarChart3, Clock, LogOut, Home, Wallet
 } from 'lucide-react';
 import { useAuth } from '../state/AuthContext';
 import { useCurrentEmployee } from '../state/CurrentEmployeeContext';
@@ -19,6 +19,7 @@ const NAV_ITEMS: { to: string; label: string; icon: React.ReactNode }[] = [
   { to: '/cost-codes',     label: 'Cost Codes',  icon: <DollarSign size={15} /> },
   { to: '/project-budgets',label: 'Budgets',     icon: <BarChart3 size={15} /> },
   { to: '/timesheets',     label: 'Timesheets',  icon: <Clock size={15} /> },
+  { to: '/earnings',       label: 'Earnings',    icon: <Wallet size={15} /> },
 ];
 
 export const ShellLayout: React.FC = () => {
@@ -39,18 +40,18 @@ export const ShellLayout: React.FC = () => {
   const visibleNavItems = React.useMemo(() => {
     if (isAdmin) return NAV_ITEMS;
     if (employeeRole === 'WORKER') {
-      return NAV_ITEMS.filter(i => i.to === '/dashboard' || i.to === '/timesheets');
+      return NAV_ITEMS.filter(i => ['/dashboard', '/timesheets', '/earnings'].includes(i.to));
     }
     if (employeeRole === 'CUSTOMER_ADMIN') {
       return NAV_ITEMS.filter(i => [
-        '/dashboard', '/companies', '/projects', '/employees', 
-        '/tasks', '/cost-codes', '/project-budgets', '/timesheets'
+        '/dashboard', '/companies', '/projects', '/employees',
+        '/tasks', '/cost-codes', '/project-budgets', '/timesheets', '/earnings'
       ].includes(i.to));
     }
     if (employeeRole === 'COMPANY_ADMIN') {
-      return NAV_ITEMS.filter(i => ['/dashboard', '/employees', '/timesheets'].includes(i.to));
+      return NAV_ITEMS.filter(i => ['/dashboard', '/employees', '/timesheets', '/earnings'].includes(i.to));
     }
-    return NAV_ITEMS.filter(i => i.to === '/dashboard' || i.to === '/timesheets');
+    return NAV_ITEMS.filter(i => ['/dashboard', '/timesheets', '/earnings'].includes(i.to));
   }, [isAdmin, employeeRole]);
 
   const currentLabel = React.useMemo(() => {

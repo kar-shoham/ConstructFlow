@@ -18,6 +18,10 @@ public interface EmployeeService
             @NonNull Long companyId,
             @NonNull Long employeeId);
 
+    Employee getByCustomer(
+            @NonNull Long customerId,
+            @NonNull Long employeeId);
+
     Employee create(
             @NonNull Long customerId,
             @NonNull Long companyId,

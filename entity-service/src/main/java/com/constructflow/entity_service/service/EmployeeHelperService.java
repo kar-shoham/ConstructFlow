@@ -11,6 +11,10 @@ public interface EmployeeHelperService
             @NonNull Long companyId,
             @NonNull Long employeeId);
 
+    EmployeeDto getByCustomer(
+            @NonNull Long customerId,
+            @NonNull Long employeeId);
+
     EmployeeDto create(
             @NonNull Long customerId,
             @NonNull Long companyId,

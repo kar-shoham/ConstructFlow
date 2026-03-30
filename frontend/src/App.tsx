@@ -14,6 +14,7 @@ import { TasksPage } from './features/tasks/TasksPage';
 import { CostCodesPage } from './features/costcodes/CostCodesPage';
 import { ProjectBudgetsPage } from './features/projectbudgets/ProjectBudgetsPage';
 import { TimesheetsPage } from './features/timesheets/TimesheetsPage';
+import { EarningsPage } from './features/earnings/EarningsPage';
 
 const RequireAuth: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isAuthenticated } = useAuth();
@@ -125,6 +126,7 @@ export const App: React.FC = () => {
           }
         />
         <Route path="timesheets" element={<TimesheetsPage />} />
+        <Route path="earnings" element={<EarningsPage />} />
       </Route>
       <Route path="*" element={<Navigate to={auth.isAuthenticated ? '/dashboard' : '/login'} replace />} />
     </Routes>

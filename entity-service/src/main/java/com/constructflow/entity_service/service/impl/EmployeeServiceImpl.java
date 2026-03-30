@@ -58,6 +58,15 @@ public class EmployeeServiceImpl
     }
 
     @Override
+    public Employee getByCustomer(
+            @NonNull Long customerId,
+            @NonNull Long employeeId)
+    {
+        return repository.getEmployeeByCustomerIdAndEmployeeId(
+                customerId, employeeId).orElseThrow(() -> new EntityNotFoundException("Employee not found!"));
+    }
+
+    @Override
     public Employee create(
             @NonNull Long customerId,
             @NonNull Long companyId,

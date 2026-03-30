@@ -1,5 +1,6 @@
 package com.constructflow.timesheet_service.dto;
 
+import com.constructflow.timesheet_service.entity.TimesheetStatus;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -40,4 +41,6 @@ public class TimesheetDto
 
     @NotNull(message = "Start Time cannot be null!")
     private Time startTime;
+
+    private TimesheetStatus status;
 }

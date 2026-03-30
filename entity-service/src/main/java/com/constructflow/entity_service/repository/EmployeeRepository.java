@@ -34,4 +34,9 @@ public interface EmployeeRepository
     boolean doesEmployeeBelongToCustomerId(
             @Param("customerId") Long customerId,
             @Param("employeeId") Long employeeId);
+
+    @Query("FROM Employee e WHERE e.company.customer.id = :customerId AND e.id = :employeeId")
+    Optional<Employee> getEmployeeByCustomerIdAndEmployeeId(
+            @Param("customerId") Long customerId,
+            @Param("employeeId") Long employeeId);
 }

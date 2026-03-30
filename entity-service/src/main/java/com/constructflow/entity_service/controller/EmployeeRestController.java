@@ -53,6 +53,15 @@ public class EmployeeRestController
                 .collect(Collectors.toUnmodifiableList()));
     }
 
+    @GetMapping("/employees/{employeeId}")
+    public ResponseEntity<EmployeeDto> getByCustomer(
+            @PathVariable @NonNull Long customerId,
+            @PathVariable @NonNull Long employeeId)
+    {
+        EmployeeDto res = employeeHelperService.getByCustomer(customerId, employeeId);
+        return ResponseEntity.ok(res);
+    }
+
     @GetMapping("/companies/{companyId}/employees")
     public ResponseEntity<List<EmployeeDto>> list(
             @PathVariable @NonNull Long customerId,

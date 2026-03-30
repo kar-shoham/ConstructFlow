@@ -47,6 +47,17 @@ public class EmployeeHelperServiceImpl
     }
 
     @Override
+    public EmployeeDto getByCustomer(
+            @NonNull Long customerId,
+            @NonNull Long employeeId)
+    {
+        Employee entity = employeeService.getByCustomer(customerId, employeeId);
+        UserDto userDto = userClient.get(entity.getUserId());
+        Map<ObjectType, Object> ref = Map.of(ObjectType.Username, userDto.getUsername(), ObjectType.Email, userDto.getEmail());
+        return EmployeeConverter.instance.toDto(ref, entity);
+    }
+
+    @Override
     @Transactional(rollbackFor = Exception.class)
     public EmployeeDto create(
             @NonNull Long customerId,

@@ -3,7 +3,7 @@ import { api, timesheetApi } from '../../api/client';
 import { useTenant } from '../../state/TenantContext';
 import { useAuth } from '../../state/AuthContext';
 import { useCurrentEmployee } from '../../state/CurrentEmployeeContext';
-import type { TimesheetDto, EmployeeDto, ProjectDto, TaskDto, ProjectBudgetDto } from '../../api/types';
+import type { TimesheetDto, EmployeeDto, ProjectDto, TaskDto, ProjectBudgetDto, TimesheetStatus } from '../../api/types';
 import { secondsToIsoDuration, parseDurationToSeconds } from '../../api/types';
 
 function formatSeconds(s: number): string {
@@ -35,6 +35,8 @@ export const TimesheetsPage: React.FC = () => {
   const [filterStart, setFilterStart] = useState('');
   const [filterEnd, setFilterEnd] = useState('');
   const [deletingId, setDeletingId] = useState<number | null>(null);
+  const [approvingId, setApprovingId] = useState<number | null>(null);
+  const [rejectingId, setRejectingId] = useState<number | null>(null);
 
   const isAdmin        = auth.userRole === 'ADMIN';
   const isWorker       = currentEmployee?.employeeRole === 'WORKER';
@@ -167,6 +169,30 @@ export const TimesheetsPage: React.FC = () => {
       setFormOpen(false);
     } catch (err: any) {
       setError(err?.response?.data?.message ?? 'Delete failed');
+    }
+  };
+
+  const approve = async (id: number) => {
+    if (!customerId) return;
+    setError(null);
+    try {
+      await timesheetApi.post(`/customers/${customerId}/timesheets/${id}/approve`, {});
+      load();
+      setApprovingId(null);
+    } catch (err: any) {
+      setError(err?.response?.data?.message ?? 'Approval failed');
+    }
+  };
+
+  const reject = async (id: number) => {
+    if (!customerId) return;
+    setError(null);
+    try {
+      await timesheetApi.post(`/customers/${customerId}/timesheets/${id}/reject`, {});
+      load();
+      setRejectingId(null);
+    } catch (err: any) {
+      setError(err?.response?.data?.message ?? 'Rejection failed');
     }
   };
 
@@ -341,6 +367,7 @@ export const TimesheetsPage: React.FC = () => {
                 <th>Date</th>
                 <th>Start</th>
                 <th>Duration</th>
+                <th>Status</th>
                 <th></th>
               </tr>
             </thead>
@@ -354,6 +381,8 @@ export const TimesheetsPage: React.FC = () => {
                     : row.employeeId;
                 const proj = projects.find(p => p.id === row.projectId);
                 const sec  = parseDurationToSeconds(row.seconds as string | number);
+                const status = row.status ?? 'SUBMITTED';
+                const canEdit = status === 'SUBMITTED';
                 return (
                   <tr key={row.id}>
                     {!isWorker && <td style={{ fontWeight: 500 }}>{empName}</td>}
@@ -362,6 +391,11 @@ export const TimesheetsPage: React.FC = () => {
                     <td className="muted">{String(row.startTime).slice(0, 5)}</td>
                     <td><span className="badge badge-blue">{formatSeconds(sec)}</span></td>
                     <td>
+                      <span className={`badge ${status === 'SUBMITTED' ? 'badge-blue' : status === 'APPROVED' ? 'badge-blue' : status === 'PAID' ? 'badge-green' : 'badge-red'}`}>
+                        {status}
+                      </span>
+                    </td>
+                    <td>
                       <div className="row" style={{ gap: 6, justifyContent: 'flex-end' }}>
                         {deletingId === row.id ? (
                           <>
@@ -369,11 +403,29 @@ export const TimesheetsPage: React.FC = () => {
                             <button type="button" className="btn btn-danger btn-sm" onClick={() => row.id != null && remove(row.id)}>Delete</button>
                             <button type="button" className="btn btn-ghost btn-sm" onClick={() => setDeletingId(null)}>Cancel</button>
                           </>
+                        ) : approvingId === row.id ? (
+                          <>
+                            <button type="button" className="btn btn-primary btn-sm" onClick={() => row.id != null && approve(row.id)}>Confirm Approve</button>
+                            <button type="button" className="btn btn-ghost btn-sm" onClick={() => setApprovingId(null)}>Cancel</button>
+                          </>
+                        ) : rejectingId === row.id ? (
+                          <>
+                            <button type="button" className="btn btn-danger btn-sm" onClick={() => row.id != null && reject(row.id)}>Confirm Reject</button>
+                            <button type="button" className="btn btn-ghost btn-sm" onClick={() => setRejectingId(null)}>Cancel</button>
+                          </>
                         ) : (
                           <>
-                            <button type="button" className="btn btn-ghost" onClick={() => openEdit(row)}>Edit</button>
-                            {!isWorker && (
+                            {canEdit && (
+                              <button type="button" className="btn btn-ghost" onClick={() => openEdit(row)}>Edit</button>
+                            )}
+                            {!isWorker && canEdit && (
                               <button type="button" className="btn btn-ghost btn-danger" onClick={() => setDeletingId(row.id ?? null)}>Delete</button>
+                            )}
+                            {!isWorker && status === 'SUBMITTED' && (
+                              <>
+                                <button type="button" className="btn btn-primary btn-sm" onClick={() => setApprovingId(row.id ?? null)}>Approve</button>
+                                <button type="button" className="btn btn-danger btn-sm" onClick={() => setRejectingId(row.id ?? null)}>Reject</button>
+                              </>
                             )}
                           </>
                         )}
