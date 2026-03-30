@@ -72,36 +72,37 @@ services:
     volumes:
       - ./db-volumes/kafka-volume:/var/lib/kafka/data
 
-  schema-registry:
-    image: confluentinc/cp-schema-registry:7.7.1
-    hostname: schema-registry
-    container_name: schema-registry
-    depends_on:
-      - kafka
-    ports:
-      - "8881:8081"
-    environment:
-      SCHEMA_REGISTRY_HOST_NAME: schema-registry
-      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: 'kafka:29092'
-      SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
-
-  kafbat-ui:
-    container_name: kafbat-ui
-    image: ghcr.io/kafbat/kafka-ui:latest
-    ports:
-      - 8880:8080
-    depends_on:
-      - kafka
-      - schema-registry
-    environment:
-      KAFKA_CLUSTERS_0_NAME: local
-      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
-      KAFKA_CLUSTERS_0_SCHEMAREGISTRY: http://schema-registry:8081
-
-  zipkin:
-    image: ghcr.io/openzipkin/zipkin-slim:${TAG:-latest}
-    container_name: zipkin
-    environment:
-      - STORAGE_TYPE=mem
-    ports:
-      - 9411:9411
+# TODO: add these later
+#  schema-registry:
+#    image: confluentinc/cp-schema-registry:7.7.1
+#    hostname: schema-registry
+#    container_name: schema-registry
+#    depends_on:
+#      - kafka
+#    ports:
+#      - "8881:8081"
+#    environment:
+#      SCHEMA_REGISTRY_HOST_NAME: schema-registry
+#      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: 'kafka:29092'
+#      SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
+#
+#  kafbat-ui:
+#    container_name: kafbat-ui
+#    image: ghcr.io/kafbat/kafka-ui:latest
+#    ports:
+#      - 8880:8080
+#    depends_on:
+#      - kafka
+#      - schema-registry
+#    environment:
+#      KAFKA_CLUSTERS_0_NAME: local
+#      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
+#      KAFKA_CLUSTERS_0_SCHEMAREGISTRY: http://schema-registry:8081
+#
+#  zipkin:
+#    image: ghcr.io/openzipkin/zipkin-slim:${TAG:-latest}
+#    container_name: zipkin
+#    environment:
+#      - STORAGE_TYPE=mem
+#    ports:
+#      - 9411:9411
