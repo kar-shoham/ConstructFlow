@@ -22,7 +22,10 @@ services:
   # --- Databases ---
   cf-user-db:
     image: postgres:latest
+    container_name: cf-user-db
     restart: always
+    ports:
+      - 5531:5432
     environment:
       POSTGRES_USER: myuser
       POSTGRES_PASSWORD: mypass
@@ -32,7 +35,10 @@ services:
 
   cf-entity-db:
     image: postgres:latest
+    container_name: cf-entity-db
     restart: always
+    ports:
+      - 5532:5432
     environment:
       POSTGRES_USER: myuser
       POSTGRES_PASSWORD: mypass
@@ -42,7 +48,10 @@ services:
 
   cf-timesheet-db:
     image: postgres:latest
+    container_name: cf-timesheet-db
     restart: always
+    ports:
+      - 5533:5432
     environment:
       POSTGRES_USER: myuser
       POSTGRES_PASSWORD: mypass
@@ -52,7 +61,10 @@ services:
 
   cf-payroll-db:
     image: postgres:latest
+    container_name: cf-payroll-db
     restart: always
+    ports:
+      - 5534:5432
     environment:
       POSTGRES_USER: myuser
       POSTGRES_PASSWORD: mypass
