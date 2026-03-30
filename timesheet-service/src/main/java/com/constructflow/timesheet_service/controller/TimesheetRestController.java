@@ -39,6 +39,15 @@ public class TimesheetRestController
                 .collect(Collectors.toUnmodifiableList()));
     }
 
+    @GetMapping("/{timesheetId}")
+    public ResponseEntity<TimesheetDto> get(
+            @PathVariable @NonNull Long customerId,
+            @PathVariable @NonNull Long timesheetId)
+    {
+        Timesheet entity = timesheetService.get(customerId, timesheetId);
+        return ResponseEntity.ok(TimesheetConverter.instance.toDto(null, entity));
+    }
+
     @PostMapping
     public ResponseEntity<TimesheetDto> create(
             @PathVariable @NonNull Long customerId,

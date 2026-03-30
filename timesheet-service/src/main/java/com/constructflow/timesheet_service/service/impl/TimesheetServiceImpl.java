@@ -34,7 +34,8 @@ public class TimesheetServiceImpl
     @Autowired
     private KafkaTemplate<String, String> kafkaTemplate;
 
-    private Timesheet get(
+    @Override
+    public Timesheet get(
             @NonNull Long customerId,
             @NonNull Long timesheetId)
     {
@@ -102,6 +103,7 @@ public class TimesheetServiceImpl
             throw new RuntimeException(validationResponse.getMessage());
         }
         entity.setId(null);
+        entity.setStatus(TimesheetStatus.SUBMITTED);
         entity.setCustomerId(customerId);
         entity.setCreatedBy(getLoggedInUserId());
         entity.setModifiedBy(getLoggedInUserId());

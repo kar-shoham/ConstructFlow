@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 
 @FeignClient(
     name = "timesheet-service",
-    url = "${timesheet.service.url:http://localhost:8583/api/v1/timesheet}",
+    path = "/api/v1",
     configuration = SystemUserFeignConfig.class
 )
 public interface TimesheetClient {
