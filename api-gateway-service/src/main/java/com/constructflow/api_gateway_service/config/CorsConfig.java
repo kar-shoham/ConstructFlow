@@ -16,10 +16,16 @@ public class CorsConfig {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
         config.setAllowedOrigins(List.of(
+                // Development ports
                 "http://localhost:5173",
                 "http://127.0.0.1:5173",
                 "http://localhost:3000",
-                "http://127.0.0.1:3000"
+                "http://127.0.0.1:3000",
+                // Production/Docker (port 80)
+                "http://localhost",
+                "http://localhost:80",
+                "http://127.0.0.1",
+                "http://127.0.0.1:80"
         ));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         config.setAllowedHeaders(List.of(
