@@ -30,8 +30,9 @@ services:
       POSTGRES_USER: myuser
       POSTGRES_PASSWORD: mypass
       POSTGRES_DB: cf_user_db
+      PGDATA: /var/lib/postgresql/data/pgdata
     volumes:
-      - ./db-volumes/user-volume:/var/lib/postgresql/data/
+      - ./db-volumes/user-volume:/var/lib/postgresql/data
 
   cf-entity-db:
     image: postgres:latest
@@ -43,8 +44,9 @@ services:
       POSTGRES_USER: myuser
       POSTGRES_PASSWORD: mypass
       POSTGRES_DB: cf_entity_db
+      PGDATA: /var/lib/postgresql/data/pgdata
     volumes:
-      - ./db-volumes/entity-volume:/var/lib/postgresql/data/
+      - ./db-volumes/entity-volume:/var/lib/postgresql/data
 
   cf-timesheet-db:
     image: postgres:latest
@@ -56,8 +58,9 @@ services:
       POSTGRES_USER: myuser
       POSTGRES_PASSWORD: mypass
       POSTGRES_DB: cf_timesheet_db
+      PGDATA: /var/lib/postgresql/data/pgdata
     volumes:
-      - ./db-volumes/timesheet-volume:/var/lib/postgresql/data/
+      - ./db-volumes/timesheet-volume:/var/lib/postgresql/data
 
   cf-payroll-db:
     image: postgres:latest
@@ -69,8 +72,9 @@ services:
       POSTGRES_USER: myuser
       POSTGRES_PASSWORD: mypass
       POSTGRES_DB: cf_payroll_db
+      PGDATA: /var/lib/postgresql/data/pgdata
     volumes:
-      - ./db-volumes/payroll-volume:/var/lib/postgresql/data/
+      - ./db-volumes/payroll-volume:/var/lib/postgresql/data
 
   kafka:
     image: confluentinc/cp-kafka:latest
