@@ -42,3 +42,9 @@ export const timesheetApi = axios.create({
 });
 addAuthInterceptor(timesheetApi);
 
+/** Payroll-service: earnings CRUD. Gateway path: /api/v1/payroll/** → rewritten to /api/v1/**. */
+export const payrollApi = axios.create({
+  baseURL: `${API_BASE}/payroll`
+});
+addAuthInterceptor(payrollApi);
+
