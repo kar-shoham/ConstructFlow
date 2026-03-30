@@ -1,11 +1,8 @@
 import axios from 'axios';
 import { AuthState } from '../state/AuthContext';
 
-/** API gateway URL (e.g. http://localhost:8680). */
-const GATEWAY_URL = import.meta.env.VITE_API_GATEWAY_URL ?? 'http://localhost:8680';
-
-/** Base for all v1 APIs (e.g. http://localhost:8680/api/v1). Gateway routes: /api/v1/auth/**, /api/v1/entity/**, /api/v1/timesheet/**. */
-const API_BASE = import.meta.env.VITE_API_BASE_URL ?? `${GATEWAY_URL}/api/v1`;
+/** Base for all v1 APIs. Gateway routes: /api/v1/auth/**, /api/v1/entity/**, /api/v1/timesheet/**. */
+const API_BASE = import.meta.env.VITE_API_BASE_URL ?? '/api/v1';
 
 let currentAuth: AuthState | null = null;
 
