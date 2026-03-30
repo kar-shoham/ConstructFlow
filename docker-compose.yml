@@ -1,9 +1,28 @@
 services:
-  cf-user-db:
-    image: "postgres:latest"
-    container_name: "cf-user-db"
+  # --- Infrastructure ---
+  discovery-service:
+    build: ./discovery-service
+    restart: always
     ports:
-      - 5531:5432
+      - "8580:8580"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+
+  config-service:
+    build: ./config-service
+    restart: always
+    depends_on:
+      - discovery-service
+    ports:
+      - "8590:8590"
+    environment:
+      - GIT_PASSWORD=${GIT_PASSWORD}
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-service:8580/eureka/
+
+  # --- Databases ---
+  cf-user-db:
+    image: postgres:latest
+    restart: always
     environment:
       POSTGRES_USER: myuser
       POSTGRES_PASSWORD: mypass
@@ -12,10 +31,8 @@ services:
       - ./db-volumes/user-volume:/var/lib/postgresql/data/
 
   cf-entity-db:
-    image: "postgres:latest"
-    container_name: "cf-entity-db"
-    ports:
-      - 5532:5432
+    image: postgres:latest
+    restart: always
     environment:
       POSTGRES_USER: myuser
       POSTGRES_PASSWORD: mypass
@@ -24,10 +41,8 @@ services:
       - ./db-volumes/entity-volume:/var/lib/postgresql/data/
 
   cf-timesheet-db:
-    image: "postgres:latest"
-    container_name: "cf-timesheet-db"
-    ports:
-      - 5533:5432
+    image: postgres:latest
+    restart: always
     environment:
       POSTGRES_USER: myuser
       POSTGRES_PASSWORD: mypass
@@ -36,10 +51,8 @@ services:
       - ./db-volumes/timesheet-volume:/var/lib/postgresql/data/
 
   cf-payroll-db:
-    image: "postgres:latest"
-    container_name: "cf-payroll-db"
-    ports:
-      - 5534:5432
+    image: postgres:latest
+    restart: always
     environment:
       POSTGRES_USER: myuser
       POSTGRES_PASSWORD: mypass
@@ -47,62 +60,76 @@ services:
     volumes:
       - ./db-volumes/payroll-volume:/var/lib/postgresql/data/
 
-
-  kafka:
-    image: confluentinc/cp-kafka:latest
-    hostname: kafka
-    container_name: kafka
+  # --- Services ---
+  api-gateway-service:
+    build: ./api-gateway-service
+    restart: always
+    depends_on:
+      - config-service
     ports:
-      - "9092:9092"   # Map host 9092 to container 9092 (External)
-      - "9093:9093"
+      - "8680:8680"
     environment:
-      KAFKA_KRAFT_MODE: "true"
-      KAFKA_PROCESS_ROLES: controller,broker
-      KAFKA_NODE_ID: 1
-      KAFKA_CONTROLLER_QUORUM_VOTERS: "1@kafka:9093"
-      KAFKA_LISTENERS: INTERNAL://0.0.0.0:29092,EXTERNAL://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093
-      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka:29092,EXTERNAL://localhost:9092
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT,CONTROLLER:PLAINTEXT
-      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
-      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
-      KAFKA_LOG_DIRS: /var/lib/kafka/data
-      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-      CLUSTER_ID: uvPuhxALSNCT9fLN74DFLA
-    volumes:
-      - ./db-volumes/kafka-volume:/var/lib/kafka/data
+      - SPRING_CONFIG_IMPORT=configserver:http://config-service:8590
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-service:8580/eureka/
+      - JAVA_OPTS=-Xmx512m -Xms256m
 
-# TODO: add these later
-#  schema-registry:
-#    image: confluentinc/cp-schema-registry:7.7.1
-#    hostname: schema-registry
-#    container_name: schema-registry
-#    depends_on:
-#      - kafka
-#    ports:
-#      - "8881:8081"
-#    environment:
-#      SCHEMA_REGISTRY_HOST_NAME: schema-registry
-#      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: 'kafka:29092'
-#      SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
-#
-#  kafbat-ui:
-#    container_name: kafbat-ui
-#    image: ghcr.io/kafbat/kafka-ui:latest
-#    ports:
-#      - 8880:8080
-#    depends_on:
-#      - kafka
-#      - schema-registry
-#    environment:
-#      KAFKA_CLUSTERS_0_NAME: local
-#      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
-#      KAFKA_CLUSTERS_0_SCHEMAREGISTRY: http://schema-registry:8081
-#
-#  zipkin:
-#    image: ghcr.io/openzipkin/zipkin-slim:${TAG:-latest}
-#    container_name: zipkin
-#    environment:
-#      - STORAGE_TYPE=mem
-#    ports:
-#      - 9411:9411
+  user-service:
+    build: ./user-service
+    restart: always
+    depends_on:
+      - cf-user-db
+      - config-service
+    environment:
+      - SPRING_CONFIG_IMPORT=configserver:http://config-service:8590
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://cf-user-db:5432/cf_user_db
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-service:8580/eureka/
+      - JAVA_OPTS=-Xmx512m -Xms256m
+
+  entity-service:
+    build: ./entity-service
+    restart: always
+    depends_on:
+      - cf-entity-db
+      - config-service
+    environment:
+      - SPRING_CONFIG_IMPORT=configserver:http://config-service:8590
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://cf-entity-db:5432/cf_entity_db
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-service:8580/eureka/
+      - JAVA_OPTS=-Xmx512m -Xms256m
+
+  timesheet-service:
+    build: ./timesheet-service
+    restart: always
+    depends_on:
+      - cf-timesheet-db
+      - config-service
+    environment:
+      - SPRING_CONFIG_IMPORT=configserver:http://config-service:8590
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://cf-timesheet-db:5432/cf_timesheet_db
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-service:8580/eureka/
+      - JAVA_OPTS=-Xmx512m -Xms256m
+
+  payroll-service:
+    build: ./payroll-service
+    restart: always
+    depends_on:
+      - cf-payroll-db
+      - config-service
+    environment:
+      - SPRING_CONFIG_IMPORT=configserver:http://config-service:8590
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://cf-payroll-db:5432/cf_payroll_db
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-service:8580/eureka/
+      - JAVA_OPTS=-Xmx512m -Xms256m
+
+  # --- Frontend ---
+  frontend:
+    build: ./frontend
+    restart: always
+    ports:
+      - "80:80"
+    depends_on:
+      - api-gateway-service
+
+networks:
+  default:
+    name: constructflow-network
