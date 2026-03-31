@@ -101,12 +101,19 @@ public class UserServiceImpl
     protected Long getLoggedInUserId()
     {
         JwtInfo info = getAuthInfo();
-        return info.getUserId();
+        return info != null ? info.getUserId() : null;
     }
 
     private JwtInfo getAuthInfo()
     {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        return (JwtInfo) authentication.getPrincipal();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return null;
+        }
+        Object principal = authentication.getPrincipal();
+        if (principal instanceof JwtInfo) {
+            return (JwtInfo) principal;
+        }
+        return null;
     }
 }
