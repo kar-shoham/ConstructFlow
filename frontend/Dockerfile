@@ -9,9 +9,19 @@ RUN npm run build
 # Stage 2: Serve
 FROM nginx:stable-alpine
 COPY --from=build /app/dist /usr/share/nginx/html
-# Standard Nginx config for SPA
+# Nginx config with HTTPS redirect
 RUN echo "server { \
     listen 80; \
+    server_name www.constructflow.space; \
+    return 301 https://\$host\$request_uri; \
+} \
+server { \
+    listen 443 ssl http2; \
+    server_name www.constructflow.space; \
+    ssl_certificate /etc/nginx/certs/fullchain.pem; \
+    ssl_certificate_key /etc/nginx/certs/privkey.pem; \
+    ssl_protocols TLSv1.2 TLSv1.3; \
+    ssl_ciphers HIGH:!aNULL:!MD5; \
     location / { \
         root /usr/share/nginx/html; \
         index index.html; \
@@ -32,5 +42,5 @@ RUN echo "server { \
         proxy_set_header X-Forwarded-Proto \$scheme; \
     } \
 }" > /etc/nginx/conf.d/default.conf
-EXPOSE 80
+EXPOSE 80 443
 CMD ["nginx", "-g", "daemon off;"]

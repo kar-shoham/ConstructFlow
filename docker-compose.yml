@@ -201,6 +201,9 @@ services:
     restart: always
     ports:
       - "80:80"
+      - "443:443"
+    volumes:
+      - /etc/letsencrypt/live/www.constructflow.space:/etc/nginx/certs:ro
     depends_on:
       - api-gateway-service
 
