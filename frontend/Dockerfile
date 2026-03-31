@@ -16,7 +16,8 @@ RUN echo "server { \
     return 301 https://\$host\$request_uri; \
 } \
 server { \
-    listen 443 ssl http2; \
+    listen 443 ssl; \
+    http2 on; \
     server_name www.constructflow.space; \
     ssl_certificate /etc/nginx/certs/fullchain.pem; \
     ssl_certificate_key /etc/nginx/certs/privkey.pem; \
