@@ -28,18 +28,22 @@ server { \
         try_files \$uri \$uri/ /index.html; \
     } \
     location /api { \
+        client_max_body_size 10M; \
         proxy_pass http://api-gateway-service:8080; \
         proxy_set_header Host \$host; \
         proxy_set_header X-Real-IP \$remote_addr; \
         proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for; \
         proxy_set_header X-Forwarded-Proto \$scheme; \
+        proxy_set_header Content-Length \$content_length; \
     } \
     location /auth { \
+        client_max_body_size 10M; \
         proxy_pass http://api-gateway-service:8080; \
         proxy_set_header Host \$host; \
         proxy_set_header X-Real-IP \$remote_addr; \
         proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for; \
         proxy_set_header X-Forwarded-Proto \$scheme; \
+        proxy_set_header Content-Length \$content_length; \
     } \
 }" > /etc/nginx/conf.d/default.conf
 EXPOSE 80 443
