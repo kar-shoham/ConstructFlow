@@ -2,6 +2,7 @@ package com.constructflow.api_gateway_service.filter;
 
 import com.constructflow.api_gateway_service.dto.JwtPayloadDto;
 import com.constructflow.api_gateway_service.utils.JwtUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.OrderedGatewayFilter;
@@ -14,6 +15,7 @@ import org.springframework.util.StringUtils;
 import java.util.Objects;
 
 @Component
+@Slf4j
 public class JwtGatewayFilterFactory
         extends AbstractGatewayFilterFactory<JwtGatewayFilterFactory.Config>
 {
@@ -30,12 +32,18 @@ public class JwtGatewayFilterFactory
     {
         GatewayFilter gatewayFilter = (exchange, chain) -> {
             String url = exchange.getRequest().getURI().getPath();
+            log.info("JwtGatewayFilter - Path: {}, RelaxedPaths: {}", url, config.getRelaxedPaths());
+
             if (Objects.nonNull(config.getRelaxedPaths()) && url.contains(config.getRelaxedPaths())) {
+                log.info("JwtGatewayFilter - Relaxed path matched, skipping JWT check for: {}", url);
                 return chain.filter(exchange);
             }
 
             String bearerToken = exchange.getRequest().getHeaders().getFirst("Authorization");
+            log.info("JwtGatewayFilter - Bearer token present: {}", StringUtils.hasText(bearerToken));
+
             if (!StringUtils.hasText(bearerToken) || !bearerToken.startsWith("Bearer ")) {
+                log.error("JwtGatewayFilter - No valid bearer token, returning 401");
                 exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
                 return exchange.getResponse().setComplete();
             }
@@ -43,11 +51,16 @@ public class JwtGatewayFilterFactory
             try {
                 String token = bearerToken.split("Bearer ")[1];
                 payloadDto = jwtUtils.verifyJwt(token);
+                log.info("JwtGatewayFilter - JWT verified, userId: {}", payloadDto.getUserId());
             }
             catch (Exception e) {
+                log.error("JwtGatewayFilter - JWT verification failed: {}", e.getMessage());
                 exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
                 return exchange.getResponse().setComplete();
             }
+
+            log.info("JwtGatewayFilter - Adding headers - userId: {}, username: {}, role: {}",
+                    payloadDto.getUserId(), payloadDto.getUsername(), payloadDto.getUserRole());
 
             ServerHttpRequest request = exchange.getRequest()
                     .mutate()
