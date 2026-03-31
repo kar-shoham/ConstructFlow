@@ -25,7 +25,9 @@ public class CorsConfig {
                 "http://localhost",
                 "http://localhost:80",
                 "http://127.0.0.1",
-                "http://127.0.0.1:80"
+                "http://127.0.0.1:80",
+                // Production HTTPS
+                "https://www.constructflow.space"
         ));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         config.setAllowedHeaders(List.of(
