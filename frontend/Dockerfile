@@ -18,10 +18,10 @@ RUN echo "server { \
         try_files \$uri \$uri/ /index.html; \
     } \
     location /api { \
-        proxy_pass http://api-gateway-service:8680; \
+        proxy_pass http://api-gateway-service:8080; \
     } \
     location /auth { \
-        proxy_pass http://api-gateway-service:8680; \
+        proxy_pass http://api-gateway-service:8080; \
     } \
 }" > /etc/nginx/conf.d/default.conf
 EXPOSE 80
