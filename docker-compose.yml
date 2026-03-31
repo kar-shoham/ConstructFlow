@@ -4,7 +4,7 @@ services:
     build: ./discovery-service
     restart: always
     ports:
-      - "8580:8580"
+      - "8580:8080"
     environment:
       - SPRING_PROFILES_ACTIVE=docker
 
@@ -14,7 +14,7 @@ services:
     depends_on:
       - discovery-service
     ports:
-      - "8590:8590"
+      - "8590:8080"
     environment:
       - GIT_PASSWORD=${GIT_PASSWORD}
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-service:8580/eureka/
@@ -141,7 +141,7 @@ services:
     depends_on:
       - config-service
     ports:
-      - "8680:8680"
+      - "8680:8080"
     environment:
       - SPRING_CONFIG_IMPORT=configserver:http://config-service:8590
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-service:8580/eureka/
