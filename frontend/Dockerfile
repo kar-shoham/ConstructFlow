@@ -28,22 +28,40 @@ server { \
         try_files \$uri \$uri/ /index.html; \
     } \
     location /api { \
+        if (\$request_method = 'OPTIONS') { \
+            add_header 'Access-Control-Allow-Origin' '\$http_origin' always; \
+            add_header 'Access-Control-Allow-Methods' 'GET, POST, PUT, DELETE, OPTIONS' always; \
+            add_header 'Access-Control-Allow-Headers' 'Content-Type, Authorization' always; \
+            add_header 'Content-Length' '0' always; \
+            return 204; \
+        } \
         client_max_body_size 10M; \
         proxy_pass http://api-gateway-service:8080; \
         proxy_set_header Host \$host; \
         proxy_set_header X-Real-IP \$remote_addr; \
         proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for; \
         proxy_set_header X-Forwarded-Proto \$scheme; \
-        proxy_set_header Content-Length \$content_length; \
+        add_header 'Access-Control-Allow-Origin' '\$http_origin' always; \
+        add_header 'Access-Control-Allow-Methods' 'GET, POST, PUT, DELETE, OPTIONS' always; \
+        add_header 'Access-Control-Allow-Headers' 'Content-Type, Authorization' always; \
     } \
     location /auth { \
+        if (\$request_method = 'OPTIONS') { \
+            add_header 'Access-Control-Allow-Origin' '\$http_origin' always; \
+            add_header 'Access-Control-Allow-Methods' 'GET, POST, PUT, DELETE, OPTIONS' always; \
+            add_header 'Access-Control-Allow-Headers' 'Content-Type, Authorization' always; \
+            add_header 'Content-Length' '0' always; \
+            return 204; \
+        } \
         client_max_body_size 10M; \
         proxy_pass http://api-gateway-service:8080; \
         proxy_set_header Host \$host; \
         proxy_set_header X-Real-IP \$remote_addr; \
         proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for; \
         proxy_set_header X-Forwarded-Proto \$scheme; \
-        proxy_set_header Content-Length \$content_length; \
+        add_header 'Access-Control-Allow-Origin' '\$http_origin' always; \
+        add_header 'Access-Control-Allow-Methods' 'GET, POST, PUT, DELETE, OPTIONS' always; \
+        add_header 'Access-Control-Allow-Headers' 'Content-Type, Authorization' always; \
     } \
 }" > /etc/nginx/conf.d/default.conf
 EXPOSE 80 443
