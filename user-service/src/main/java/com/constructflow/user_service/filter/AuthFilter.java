@@ -5,6 +5,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -16,6 +17,7 @@ import java.util.List;
 import java.util.Objects;
 
 @Component
+@Slf4j
 public class AuthFilter
         extends OncePerRequestFilter
 {
@@ -27,7 +29,10 @@ public class AuthFilter
             throws ServletException, IOException
     {
         String requestUrl = request.getRequestURI();
-        if(requestUrl.contains("/auth")) {
+        log.info("AuthFilter - Request URL: {}", requestUrl);
+
+        if(requestUrl.contains("/auth") || requestUrl.contains("/login") || requestUrl.contains("/signup")) {
+            log.info("AuthFilter - Public endpoint, skipping auth");
             filterChain.doFilter(request, response);
             return;
         }
@@ -36,7 +41,10 @@ public class AuthFilter
         String username = request.getHeader("X-User-Username");
         String userRole = request.getHeader("X-User-Role");
 
+        log.info("AuthFilter - Headers - userId: {}, username: {}, role: {}", userId, username, userRole);
+
         if (Objects.isNull(userId) || !StringUtils.hasText(username) || !StringUtils.hasText(userRole)) {
+            log.error("AuthFilter - Auth Failed: userId={}, username={}, userRole={}", userId, username, userRole);
             handleError(response, "Authentication Failed!", HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
