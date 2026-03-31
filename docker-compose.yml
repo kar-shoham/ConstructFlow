@@ -17,7 +17,7 @@ services:
       - "8590:8080"
     environment:
       - GIT_PASSWORD=${GIT_PASSWORD}
-      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-service:8580/eureka/
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-service:8080/eureka/
 
   # --- Databases ---
   cf-user-db:
@@ -143,8 +143,8 @@ services:
     ports:
       - "8680:8080"
     environment:
-      - SPRING_CONFIG_IMPORT=configserver:http://config-service:8590
-      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-service:8580/eureka/
+      - SPRING_CONFIG_IMPORT=configserver:http://config-service:8080
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-service:8080/eureka/
       - JAVA_OPTS=-Xmx512m -Xms256m
 
   user-service:
@@ -154,9 +154,9 @@ services:
       - cf-user-db
       - config-service
     environment:
-      - SPRING_CONFIG_IMPORT=configserver:http://config-service:8590
+      - SPRING_CONFIG_IMPORT=configserver:http://config-service:8080
       - SPRING_DATASOURCE_URL=jdbc:postgresql://cf-user-db:5432/cf_user_db
-      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-service:8580/eureka/
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-service:8080/eureka/
       - JAVA_OPTS=-Xmx512m -Xms256m
 
   entity-service:
@@ -166,9 +166,9 @@ services:
       - cf-entity-db
       - config-service
     environment:
-      - SPRING_CONFIG_IMPORT=configserver:http://config-service:8590
+      - SPRING_CONFIG_IMPORT=configserver:http://config-service:8080
       - SPRING_DATASOURCE_URL=jdbc:postgresql://cf-entity-db:5432/cf_entity_db
-      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-service:8580/eureka/
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-service:8080/eureka/
       - JAVA_OPTS=-Xmx512m -Xms256m
 
   timesheet-service:
@@ -178,9 +178,9 @@ services:
       - cf-timesheet-db
       - config-service
     environment:
-      - SPRING_CONFIG_IMPORT=configserver:http://config-service:8590
+      - SPRING_CONFIG_IMPORT=configserver:http://config-service:8080
       - SPRING_DATASOURCE_URL=jdbc:postgresql://cf-timesheet-db:5432/cf_timesheet_db
-      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-service:8580/eureka/
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-service:8080/eureka/
       - JAVA_OPTS=-Xmx512m -Xms256m
 
   payroll-service:
@@ -190,9 +190,9 @@ services:
       - cf-payroll-db
       - config-service
     environment:
-      - SPRING_CONFIG_IMPORT=configserver:http://config-service:8590
+      - SPRING_CONFIG_IMPORT=configserver:http://config-service:8080
       - SPRING_DATASOURCE_URL=jdbc:postgresql://cf-payroll-db:5432/cf_payroll_db
-      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-service:8580/eureka/
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-service:8080/eureka/
       - JAVA_OPTS=-Xmx512m -Xms256m
 
   # --- Frontend ---
