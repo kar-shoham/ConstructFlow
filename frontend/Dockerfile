@@ -19,8 +19,8 @@ server { \
     listen 443 ssl; \
     http2 on; \
     server_name www.constructflow.space; \
-    ssl_certificate /etc/nginx/certs/fullchain.pem; \
-    ssl_certificate_key /etc/nginx/certs/privkey.pem; \
+    ssl_certificate /etc/nginx/certs/fullchain1.pem; \
+    ssl_certificate_key /etc/nginx/certs/privkey1.pem; \
     ssl_protocols TLSv1.2 TLSv1.3; \
     ssl_ciphers HIGH:!aNULL:!MD5; \
     location / { \
